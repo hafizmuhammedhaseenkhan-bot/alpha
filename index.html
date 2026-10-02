@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -6,70 +7,68 @@
     <title>Jarvis AI</title>
     <style>
         body {
-            background-color: #0f172a;
-            color: #38bdf8;
+            background-color: #01172a;
+            color: #50aefc;
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 20%;
-        }
-        button {
-            background-color: #0284c7;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0369a1;
-        }
-        #output {
-            margin-top: 20px;
-            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-    <h1>JARVIS AI ASSISTANT</h1>
-    <button onclick="startListening()">Speak Command</button>
-    <div id="output">बटन दबाएं और बोलें...</div>
+    <h1>Jarvis Voice Assistant</h1>
+    <p id="status">बोलिए, जार्विस सुन रहा है...</p>
 
     <script>
-        const output = document.getElementById('output');
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        if (SpeechRecognition) {
+        if (!SpeechRecognition) {
+            alert("आपका ब्राउज़र वॉइस रिकॉग्निशन सपोर्ट नहीं करता। गूगल क्रोम का इस्तेमाल करें।");
+        } else {
             const recognition = new SpeechRecognition();
+            recognition.continuous = true;
             recognition.lang = 'hi-IN';
 
-            function startListening() {
-                output.innerText = "सुन रहा हूँ...";
-                recognition.start();
+            // आवाज़ से जवाब देने वाला फंक्शन
+            function speak(text) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN';
+                window.speechSynthesis.speak(utterance);
             }
 
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                output.innerText = "आपने कहा: " + transcript;
-                respond(transcript);
+            // वॉइस कमांड संभालने का फंक्शन
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                console.log("आपने कहा:", transcript);
+
+                // 'जार्विस' या 'jarvis' बोलने पर कमांड चालू होगी
+                if (transcript.includes('जार्विस') || transcript.includes('jarvis')) {
+                    
+                    if (transcript.includes('यूट्यूब') || transcript.includes('youtube')) {
+                        speak("यूट्यूब खोल रहा हूँ");
+                        window.open("https://www.youtube.com", "_blank");
+                    } 
+                    else if (transcript.includes('गूगल') || transcript.includes('google')) {
+                        speak("गूगल खोल रहा हूँ");
+                        window.open("https://www.google.com", "_blank");
+                    } 
+                    else if (transcript.includes('गाना') || transcript.includes('song')) {
+                        speak("गाना चला रहा हूँ");
+                        window.open("https://www.youtube.com/results?search_query=songs", "_blank");
+                    } 
+                    else {
+                        speak("जी हुकुम, बताइए क्या करना है?");
+                    }
+                }
             };
 
-            function respond(text) {
-                let reply = "मुझे समझ नहीं आया";
-                if (text.includes("हेलो") || text.includes("नमस्ते")) {
-                    reply = "हेलो! मैं जार्विस हूँ, बताइए मैं क्या मदद करूँ?";
-                } else if (text.includes("कैसे हो")) {
-                    reply = "मैं बढ़िया हूँ! आप कैसे हैं?";
-                }
+            // बंद होने पर खुद दोबारा शुरू हो जाए
+            recognition.onend = () => {
+                recognition.start();
+            };
 
-                const synth = window.speechSynthesis;
-                const utterance = new SpeechSynthesisUtterance(reply);
-                utterance.lang = 'hi-IN';
-                synth.speak(utterance);
-            }
-        } else {
-            output.innerText = "आपका ब्राउज़र स्पीच रिकग्निशन सपोर्ट नहीं करता।";
+            recognition.start();
         }
     </script>
 
