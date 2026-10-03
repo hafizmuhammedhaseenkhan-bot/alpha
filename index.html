@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis AI</title>
+    <title>Jarvis Voice Assistant</title>
     <style>
         body {
-            background-color: #01172a;
-            color: #50aefc;
+            background-color: #05172a;
+            color: #ffffff;
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 20%;
@@ -18,56 +17,50 @@
 <body>
 
     <h1>Jarvis Voice Assistant</h1>
-    <p id="status">बोलिए, जार्विस सुन रहा है...</p>
+    <p id="status">जार्विस सुन रहा है...</p>
 
     <script>
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
+        
         if (!SpeechRecognition) {
-            alert("आपका ब्राउज़र वॉइस रिकॉग्निशन सपोर्ट नहीं करता। गूगल क्रोम का इस्तेमाल करें।");
+            alert("आपका ब्राउज़र स्पीच रिकग्निशन सपोर्ट नहीं करता। कृपया Google Chrome का उपयोग करें।");
         } else {
             const recognition = new SpeechRecognition();
             recognition.continuous = true;
-            recognition.lang = 'hi-IN';
+            recognition.interimResults = false;
+            recognition.lang = 'hi-IN'; // हिंदी भाषा के लिए
 
-            // आवाज़ से जवाब देने वाला फंक्शन
+            recognition.onstart = function() {
+                document.getElementById("status").innerText = "जार्विस सुन रहा है... बोलिए!";
+            };
+
+            recognition.onresult = function(event) {
+                const current = event.resultIndex;
+                const transcript = event.results[current][0].transcript.toLowerCase();
+                
+                document.getElementById("status").innerText = "आपने कहा: " + transcript;
+                
+                // यहाँ आप जार्विस के जवाब देने का कोड सेट कर सकते हैं
+                speak("आपने कहा: " + transcript);
+            };
+
+            recognition.onerror = function(event) {
+                console.error("خطا:", event.error);
+            };
+
+            recognition.onend = function() {
+                // यह सुनिश्चित करता है कि जार्विस लगातार सुनता रहे बंद न हो
+                recognition.start();
+            };
+
+            // जार्विस को बोलने के लिए फंक्शन
             function speak(text) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'hi-IN';
                 window.speechSynthesis.speak(utterance);
             }
 
-            // वॉइस कमांड संभालने का फंक्शन
-            recognition.onresult = (event) => {
-                const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-                console.log("आपने कहा:", transcript);
-
-                // 'जार्विस' या 'jarvis' बोलने पर कमांड चालू होगी
-                if (transcript.includes('जार्विस') || transcript.includes('jarvis')) {
-                    
-                    if (transcript.includes('यूट्यूब') || transcript.includes('youtube')) {
-                        speak("यूट्यूब खोल रहा हूँ");
-                        window.open("https://www.youtube.com", "_blank");
-                    } 
-                    else if (transcript.includes('गूगल') || transcript.includes('google')) {
-                        speak("गूगल खोल रहा हूँ");
-                        window.open("https://www.google.com", "_blank");
-                    } 
-                    else if (transcript.includes('गाना') || transcript.includes('song')) {
-                        speak("गाना चला रहा हूँ");
-                        window.open("https://www.youtube.com/results?search_query=songs", "_blank");
-                    } 
-                    else {
-                        speak("जी हुकुम, बताइए क्या करना है?");
-                    }
-                }
-            };
-
-            // बंद होने पर खुद दोबारा शुरू हो जाए
-            recognition.onend = () => {
-                recognition.start();
-            };
-
+            // ऑटोमैटिक सुनना शुरू करें
             recognition.start();
         }
     </script>
