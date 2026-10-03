@@ -22,6 +22,78 @@
     <script>
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        if (!SpeechRecognition) {
+            alert("आपका ब्राउज़र स्पीच रिकग्निशन सपोर्ट नहीं करता। कृपया Google Chrome का उपयोग करें।");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'hi-IN';
+
+            recognition.onstart = function() {
+                document.getElementById("status").innerText = "जार्विस सुन रहा है... बोलिए!";
+            };
+
+            recognition.onresult = function(event) {
+                const current = event.resultIndex;
+                const transcript = event.results[current][0].transcript.toLowerCase().trim();
+                
+                document.getElementById("status").innerText = "आपकी कमांड: " + transcript;
+                
+                if (transcript.includes("हेलो") || transcript.includes("hi")) {
+                    speak("नमस्ते बॉस, मैं आपकी क्या मदद कर सकता हूँ?");
+                } else if (transcript.includes("कैसे हो")) {
+                    speak("मैं बिल्कुल ठीक हूँ, आप बताइए आप कैसे हैं?");
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("त्रुटि:", event.error);
+            };
+
+            recognition.onend = function() {
+                recognition.start();
+            };
+
+            // जैसे ही पेज खुले, जार्विस खुद बोलेगा ताकि ऑडियो चालू हो जाए
+            window.onload = function() {
+                speak("नमस्ते बॉस, जार्विस ऑनलाइन है.");
+                recognition.start();
+            };
+        }
+    </script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis Voice Assistant</title>
+    <style>
+        body {
+            background-color: #05172a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jarvis Voice Assistant</h1>
+    <p id="status">जार्विस सुन रहा है...</p>
+
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
         if (!SpeechRecognition) {
             alert("आपका ब्राउज़र स्पीच रिकग्निशन सपोर्ट नहीं करता। कृपया Google Chrome का उपयोग करें।");
         } else {
