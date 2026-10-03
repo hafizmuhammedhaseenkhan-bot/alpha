@@ -40,13 +40,11 @@
                 
                 document.getElementById("status").innerText = "आपकी कमांड: " + transcript;
                 
-                // यहाँ जार्विस आपकी कमांड के अनुसार जवाब देगा (इसे आप बाद में कस्टमाइज़ कर सकते हैं)
+                // अब यह केवल तभी बोलेगा जब आप "हेलो" या "कैसे हो" कहेंगे
                 if (transcript.includes("हेलो") || transcript.includes("hi")) {
                     speak("नमस्ते बॉस, मैं आपकी क्या मदद कर सकता हूँ?");
                 } else if (transcript.includes("कैसे हो")) {
                     speak("मैं बिल्कुल ठीक हूँ, आप बताइए आप कैसे हैं?");
-                } else {
-                    speak("मैंने आपकी बात सुन ली है।");
                 }
             };
 
@@ -55,7 +53,6 @@
             };
 
             recognition.onend = function() {
-                // लगातार सुनने के लिए रीस्टार्ट करें
                 recognition.start();
             };
 
