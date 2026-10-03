@@ -174,4 +174,393 @@
 
 
     // =========================
-…
+    // TEST VOICE
+    // =========================
+
+    function testVoice() {
+
+        speak(
+            "Hello Boss. Jarvis online है। मेरी आवाज़ ठीक से काम कर रही है।"
+        );
+    }
+
+
+    // =========================
+    // START JARVIS
+    // =========================
+
+    function startJarvis() {
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+
+            alert(
+                "Speech Recognition उपलब्ध नहीं है। कृपया Google Chrome इस्तेमाल करें।"
+            );
+
+            return;
+        }
+
+
+        if (isListening) {
+            return;
+        }
+
+
+        recognition = new SpeechRecognition();
+
+        recognition.continuous = true;
+        recognition.interimResults = false;
+
+        // Hindi + English
+        recognition.lang = "hi-IN";
+
+
+        recognition.onstart = function () {
+
+            isListening = true;
+
+            statusText.innerText =
+                "🎙️ Jarvis सुन रहा है... बोलिए!";
+
+            document.getElementById("startBtn").style.display =
+                "none";
+
+            speak(
+                "Jarvis online है। बोलिए Boss, मैं सुन रहा हूँ।"
+            );
+        };
+
+
+        recognition.onresult = function (event) {
+
+            const result =
+                event.results[event.results.length - 1][0].transcript;
+
+            const command =
+                result.toLowerCase().trim();
+
+
+            heardText.innerText =
+                "आपने कहा: " + result;
+
+
+            handleCommand(command);
+        };
+
+
+        recognition.onerror = function (event) {
+
+            console.log(
+                "Recognition error:",
+                event.error
+            );
+
+            if (event.error === "not-allowed") {
+
+                statusText.innerText =
+                    "❌ Microphone permission बंद है।";
+
+                alert(
+                    "Chrome में Microphone permission Allow करें।"
+                );
+
+                isListening = false;
+
+                return;
+            }
+
+
+            if (event.error === "no-speech") {
+
+                statusText.innerText =
+                    "🎙️ मैं सुन रहा हूँ...";
+
+                return;
+            }
+
+
+            statusText.innerText =
+                "⚠️ Mic error: " + event.error;
+        };
+
+
+        recognition.onend = function () {
+
+            if (isListening && !restarting) {
+
+                restarting = true;
+
+                setTimeout(function () {
+
+                    restarting = false;
+
+                    try {
+                        recognition.start();
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
+
+                }, 500);
+            }
+        };
+
+
+        try {
+
+            recognition.start();
+
+        } catch (error) {
+
+            console.log(error);
+
+            statusText.innerText =
+                "❌ Jarvis शुरू नहीं हो पाया।";
+        }
+    }
+
+
+    // =========================
+    // STOP JARVIS
+    // =========================
+
+    function stopJarvis() {
+
+        isListening = false;
+
+        restarting = false;
+
+        if (recognition) {
+
+            try {
+                recognition.stop();
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+
+        window.speechSynthesis.cancel();
+
+        statusText.innerText =
+            "⛔ Jarvis बंद है।";
+
+        document.getElementById("startBtn").style.display =
+            "inline-block";
+    }
+
+
+    // =========================
+    // COMMAND SYSTEM
+    // =========================
+
+    function handleCommand(command) {
+
+
+        // HELLO
+
+        if (
+            command.includes("hello") ||
+            command.includes("हेलो") ||
+            command.includes("हैलो") ||
+            command.includes("hi")
+        ) {
+
+            speak(
+                "Hello Boss. बताइए, मैं आपकी क्या मदद कर सकता हूँ?"
+            );
+
+            return;
+        }
+
+
+        // HOW ARE YOU
+
+        if (
+            command.includes("कैसे हो") ||
+            command.includes("how are you")
+        ) {
+
+            speak(
+                "मैं बिल्कुल ठीक हूँ Boss. मैं आपकी मदद के लिए तैयार हूँ।"
+            );
+
+            return;
+        }
+
+
+        // NAME
+
+        if (
+            command.includes("तुम्हारा नाम") ||
+            command.includes("your name")
+        ) {
+
+            speak(
+                "मेरा नाम Jarvis है। मैं आपका personal voice assistant हूँ।"
+            );
+
+            return;
+        }
+
+
+        // TIME
+
+        if (
+            command.includes("समय") ||
+            command.includes("टाइम") ||
+            command.includes("time")
+        ) {
+
+            const now = new Date();
+
+            const time =
+                now.toLocaleTimeString(
+                    "en-IN",
+                    {
+                        hour: "numeric",
+                        minute: "2-digit"
+                    }
+                );
+
+            speak(
+                "अभी समय है " + time
+            );
+
+            return;
+        }
+
+
+        // DATE
+
+        if (
+            command.includes("आज की तारीख") ||
+            command.includes("date") ||
+            command.includes("तारीख")
+        ) {
+
+            const now = new Date();
+
+            const date =
+                now.toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+            speak(
+                "आज की तारीख है " + date
+            );
+
+            return;
+        }
+
+
+        // OPEN GOOGLE
+
+        if (
+            command.includes("google खोलो") ||
+            command.includes("google kholo") ||
+            command.includes("open google")
+        ) {
+
+            speak("Google खोल रहा हूँ।");
+
+            window.open(
+                "https://www.google.com",
+                "_blank"
+            );
+
+            return;
+        }
+
+
+        // OPEN YOUTUBE
+
+        if (
+            command.includes("youtube खोलो") ||
+            command.includes("youtube kholo") ||
+            command.includes("open youtube")
+        ) {
+
+            speak("YouTube खोल रहा हूँ।");
+
+            window.open(
+                "https://www.youtube.com",
+                "_blank"
+            );
+
+            return;
+        }
+
+
+        // SEARCH GOOGLE
+
+        if (
+            command.startsWith("search ") ||
+            command.startsWith("सर्च ")
+        ) {
+
+            let searchText =
+                command
+                    .replace("search ", "")
+                    .replace("सर्च ", "")
+                    .trim();
+
+
+            if (searchText.length > 0) {
+
+                speak(
+                    searchText + " को Google पर खोज रहा हूँ।"
+                );
+
+                window.open(
+                    "https://www.google.com/search?q=" +
+                    encodeURIComponent(searchText),
+                    "_blank"
+                );
+
+                return;
+            }
+        }
+
+
+        // STOP
+
+        if (
+            command.includes("jarvis बंद") ||
+            command.includes("jarvis stop") ||
+            command.includes("stop jarvis")
+        ) {
+
+            speak("ठीक है Boss. Jarvis बंद हो रहा है।");
+
+            setTimeout(
+                stopJarvis,
+                1000
+            );
+
+            return;
+        }
+
+
+        // UNKNOWN COMMAND
+
+        speak(
+            "मैंने सुना: " +
+            command +
+            ". अभी यह command मेरे system में नहीं है।"
+        );
+    }
+
+</script>
+
+</body>
+</html>
