@@ -1,103 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis Voice Assistant</title>
+    <title>Jarvis Smart Voice Assistant</title>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #05172a;
-            color: #ffffff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #123b5d, #020912);
+            color: white;
             font-family: Arial, sans-serif;
+        }
+
+        .jarvis {
+            width: 90%;
+            max-width: 700px;
             text-align: center;
-            margin-top: 15%;
+            padding: 40px 25px;
+            border: 1px solid #00d9ff;
+            border-radius: 20px;
+            box-shadow: 0 0 35px rgba(0, 217, 255, 0.25);
+            background: rgba(0, 20, 35, 0.85);
         }
-        button {
-            background-color: #00d2ff;
-            color: #05172a;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+
+        h1 {
+            color: #00d9ff;
+            font-size: 42px;
+            margin-bottom: 10px;
         }
-        button:hover {
-            background-color: #00a8cc;
-        }
+
         #status {
+            color: #00d9ff;
             font-size: 20px;
-            margin-top: 20px;
-            color: #00d2ff;
+            margin: 20px 0;
+        }
+
+        #heard {
+            min-height: 30px;
+            color: #ddd;
+            font-size: 18px;
+            margin: 15px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 14px 25px;
+            margin: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #00d9ff;
+            color: #02101a;
+        }
+
+        button:hover {
+            background: #65eaff;
+        }
+
+        #stopBtn {
+            background: #ff5252;
+            color: white;
+        }
+
+        .orb {
+            width: 130px;
+            height: 130px;
+            margin: 20px auto;
+            border-radius: 50%;
+            border: 3px solid #00d9ff;
+            box-shadow:
+                0 0 20px #00d9ff,
+                0 0 50px rgba(0, 217, 255, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <h1>Jarvis Voice Assistant</h1>
-    <p id="status">जार्विस को शुरू करने के लिए नीचे दिए गए बटन पर क्लिक करें।</p>
-    
-    <br>
-    <button onclick="startJarvis()">Start Jarvis</button>
+<div class="jarvis">
 
-    <script>
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'hi-IN';
-            window.speechSynthesis.speak(utterance);
-        }
+    <div class="orb"></div>
 
-        function startJarvis() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                alert("आपका ब्राउज़र स्पीच रिकग्निशन सपोर्ट नहीं करता। कृपया Google Chrome का उपयोग करें।");
-                return;
+    <h1>JARVIS</h1>
+
+    <p id="status">
+        Jarvis शुरू करने के लिए Start दबाएँ।
+    </p>
+
+    <p id="heard">
+        आपने अभी कुछ नहीं कहा।
+    </p>
+
+    <button id="startBtn" onclick="startJarvis()">
+        🎙️ Start Jarvis
+    </button>
+
+    <button id="stopBtn" onclick="stopJarvis()">
+        ⛔ Stop
+    </button>
+
+    <button onclick="testVoice()">
+        🔊 Test Voice
+    </button>
+
+</div>
+
+
+<script>
+
+    let recognition;
+    let isListening = false;
+    let restarting = false;
+
+    const statusText = document.getElementById("status");
+    const heardText = document.getElementById("heard");
+
+
+    // =========================
+    // JARVIS SPEAK
+    // =========================
+
+    function speak(text) {
+
+        window.speechSynthesis.cancel();
+
+        const speech = new SpeechSynthesisUtterance(text);
+
+        speech.lang = "hi-IN";
+        speech.rate = 0.95;
+        speech.pitch = 1;
+        speech.volume = 1;
+
+        speech.onstart = function () {
+            statusText.innerText = "🔊 Jarvis बोल रहा है...";
+        };
+
+        speech.onend = function () {
+            if (isListening) {
+                statusText.innerText = "🎙️ Jarvis सुन रहा है...";
             }
+        };
 
-            const recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = false;
-            recognition.lang = 'hi-IN';
+        speech.onerror = function (event) {
+            console.log("Speech error:", event);
+            statusText.innerText = "⚠️ Voice में समस्या हुई।";
+        };
 
-            recognition.onstart = function() {
-                document.getElementById("status").innerText = "जार्विस सुन रहा है... बोलिए!";
-            };
+        window.speechSynthesis.speak(speech);
+    }
 
-            recognition.onresult = function(event) {
-                const current = event.resultIndex;
-                const transcript = event.results[current][0].transcript.toLowerCase().trim();
-                
-                document.getElementById("status").innerText = "आपने कहा: " + transcript;
-                
-                if (transcript.includes("हेलो") || transcript.includes("hi")) {
-                    speak("नमस्ते बॉस, मैं आपकी क्या मदद कर सकता हूँ?");
-                } else if (transcript.includes("कैसे हो")) {
-                    speak("मैं बिल्कुल ठीक हूँ, आप बताइए आप कैसे हैं?");
-                } else if (transcript.includes("तुम्हारा नाम क्या है")) {
-                    speak("मेरा नाम जार्विस है, और मैं आपका पर्सनल असिस्टेंट हूँ।");
-                }
-            };
 
-            recognition.onerror = function(event) {
-                console.error("त्रुटि:", event.error);
-            };
-
-            recognition.onend = function() {
-                try {
-                    recognition.start();
-                } catch (e) {}
-            };
-
-            speak("जार्विस ऑनलाइन है, बोलिए मैं सुन रहा हूँ।");
-            recognition.start();
-            
-            document.querySelector("button").style.display = "none";
-        }
-    </script>
-
-</body>
-</html>
+    // =========================
+…
