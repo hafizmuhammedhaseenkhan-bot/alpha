@@ -28,7 +28,7 @@
             const recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = false;
-            recognition.lang = 'hi-IN'; // हिंदी भाषा के लिए
+            recognition.lang = 'hi-IN';
 
             recognition.onstart = function() {
                 document.getElementById("status").innerText = "जार्विस सुन रहा है... बोलिए!";
@@ -36,31 +36,35 @@
 
             recognition.onresult = function(event) {
                 const current = event.resultIndex;
-                const transcript = event.results[current][0].transcript.toLowerCase();
+                const transcript = event.results[current][0].transcript.toLowerCase().trim();
                 
-                document.getElementById("status").innerText = "आपने कहा: " + transcript;
+                document.getElementById("status").innerText = "आपकी कमांड: " + transcript;
                 
-                // यहाँ आप जार्विस के जवाब देने का कोड सेट कर सकते हैं
-                speak("आपने कहा: " + transcript);
+                // यहाँ जार्विस आपकी कमांड के अनुसार जवाब देगा (इसे आप बाद में कस्टमाइज़ कर सकते हैं)
+                if (transcript.includes("हेलो") || transcript.includes("hi")) {
+                    speak("नमस्ते बॉस, मैं आपकी क्या मदद कर सकता हूँ?");
+                } else if (transcript.includes("कैसे हो")) {
+                    speak("मैं बिल्कुल ठीक हूँ, आप बताइए आप कैसे हैं?");
+                } else {
+                    speak("मैंने आपकी बात सुन ली है।");
+                }
             };
 
             recognition.onerror = function(event) {
-                console.error("خطا:", event.error);
+                console.error("त्रुटि:", event.error);
             };
 
             recognition.onend = function() {
-                // यह सुनिश्चित करता है कि जार्विस लगातार सुनता रहे बंद न हो
+                // लगातार सुनने के लिए रीस्टार्ट करें
                 recognition.start();
             };
 
-            // जार्विस को बोलने के लिए फंक्शन
             function speak(text) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'hi-IN';
                 window.speechSynthesis.speak(utterance);
             }
 
-            // ऑटोमैटिक सुनना शुरू करें
             recognition.start();
         }
     </script>
