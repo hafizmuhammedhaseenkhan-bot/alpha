@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis Smart Voice Assistant</title>
+
+    <title>JARVIS Smart AI Assistant</title>
 
     <style>
         * {
@@ -13,90 +14,136 @@
         body {
             margin: 0;
             min-height: 100vh;
+
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, #123b5d, #020912);
+
+            background:
+                radial-gradient(circle at center,
+                #123d5c 0%,
+                #061522 45%,
+                #01060b 100%);
+
             color: white;
             font-family: Arial, sans-serif;
         }
 
         .jarvis {
             width: 90%;
-            max-width: 700px;
-            text-align: center;
+            max-width: 750px;
+
             padding: 40px 25px;
+
+            text-align: center;
+
+            background: rgba(0, 15, 30, 0.88);
+
             border: 1px solid #00d9ff;
-            border-radius: 20px;
-            box-shadow: 0 0 35px rgba(0, 217, 255, 0.25);
-            background: rgba(0, 20, 35, 0.85);
+            border-radius: 25px;
+
+            box-shadow:
+                0 0 30px rgba(0, 217, 255, 0.25),
+                inset 0 0 30px rgba(0, 217, 255, 0.05);
         }
 
         h1 {
+            margin: 10px 0;
+
+            font-size: 45px;
+
             color: #00d9ff;
-            font-size: 42px;
-            margin-bottom: 10px;
-        }
 
-        #status {
-            color: #00d9ff;
-            font-size: 20px;
-            margin: 20px 0;
-        }
-
-        #heard {
-            min-height: 30px;
-            color: #ddd;
-            font-size: 18px;
-            margin: 15px;
-        }
-
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 14px 25px;
-            margin: 8px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #00d9ff;
-            color: #02101a;
-        }
-
-        button:hover {
-            background: #65eaff;
-        }
-
-        #stopBtn {
-            background: #ff5252;
-            color: white;
+            text-shadow:
+                0 0 15px #00d9ff;
         }
 
         .orb {
-            width: 130px;
-            height: 130px;
-            margin: 20px auto;
+            width: 140px;
+            height: 140px;
+
+            margin: 0 auto 25px;
+
             border-radius: 50%;
+
             border: 3px solid #00d9ff;
+
             box-shadow:
                 0 0 20px #00d9ff,
-                0 0 50px rgba(0, 217, 255, 0.5);
+                0 0 60px rgba(0, 217, 255, 0.5);
+
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0% {
                 transform: scale(1);
-                opacity: 0.8;
             }
 
             50% {
                 transform: scale(1.08);
-                opacity: 1;
             }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #status {
+            min-height: 30px;
+
+            margin-top: 20px;
+
+            color: #00d9ff;
+
+            font-size: 20px;
+        }
+
+        #heard {
+            min-height: 30px;
+
+            color: #dddddd;
+
+            font-size: 18px;
+
+            margin: 20px;
+        }
+
+        button {
+            padding: 14px 25px;
+
+            margin: 8px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            background: #00d9ff;
+
+            color: #001018;
+
+            box-shadow:
+                0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        button:hover {
+            background: #6eeeff;
+        }
+
+        #stopBtn {
+            background: #ff4d4d;
+            color: white;
         }
     </style>
 </head>
+
 
 <body>
 
@@ -131,63 +178,106 @@
 
 <script>
 
-    let recognition;
+    // =========================================
+    // GLOBAL VARIABLES
+    // =========================================
+
+    let recognition = null;
+
     let isListening = false;
+
+    let isSpeaking = false;
+
     let restarting = false;
 
-    const statusText = document.getElementById("status");
-    const heardText = document.getElementById("heard");
+    let lastCommand = "";
+
+    let lastCommandTime = 0;
 
 
-    // =========================
-    // JARVIS SPEAK
-    // =========================
+    const statusText =
+        document.getElementById("status");
+
+    const heardText =
+        document.getElementById("heard");
+
+
+    // =========================================
+    // SPEAK FUNCTION
+    // =========================================
 
     function speak(text) {
 
+        if (!text) return;
+
+        isSpeaking = true;
+
         window.speechSynthesis.cancel();
 
-        const speech = new SpeechSynthesisUtterance(text);
+        const speech =
+            new SpeechSynthesisUtterance(text);
 
         speech.lang = "hi-IN";
+
         speech.rate = 0.95;
+
         speech.pitch = 1;
+
         speech.volume = 1;
 
+
         speech.onstart = function () {
-            statusText.innerText = "🔊 Jarvis बोल रहा है...";
+
+            statusText.innerText =
+                "🔊 Jarvis बोल रहा है...";
         };
 
+
         speech.onend = function () {
+
+            isSpeaking = false;
+
             if (isListening) {
-                statusText.innerText = "🎙️ Jarvis सुन रहा है...";
+
+                statusText.innerText =
+                    "🎙️ Jarvis सुन रहा है...";
             }
         };
 
+
         speech.onerror = function (event) {
-            console.log("Speech error:", event);
-            statusText.innerText = "⚠️ Voice में समस्या हुई।";
+
+            console.log(
+                "Speech error:",
+                event.error
+            );
+
+            isSpeaking = false;
+
+            statusText.innerText =
+                "⚠️ Voice output में समस्या।";
         };
+
 
         window.speechSynthesis.speak(speech);
     }
 
 
-    // =========================
+    // =========================================
     // TEST VOICE
-    // =========================
+    // =========================================
 
     function testVoice() {
 
         speak(
-            "Hello Boss. Jarvis online है। मेरी आवाज़ ठीक से काम कर रही है।"
+            "Hello Boss. Jarvis की आवाज़ ठीक से काम कर रही है।"
         );
     }
 
 
-    // =========================
+    // =========================================
     // START JARVIS
-    // =========================
+    // =========================================
 
     function startJarvis() {
 
@@ -195,10 +285,11 @@
             window.SpeechRecognition ||
             window.webkitSpeechRecognition;
 
+
         if (!SpeechRecognition) {
 
             alert(
-                "Speech Recognition उपलब्ध नहीं है। कृपया Google Chrome इस्तेमाल करें।"
+                "Speech Recognition उपलब्ध नहीं है। Google Chrome इस्तेमाल करें।"
             );
 
             return;
@@ -206,115 +297,211 @@
 
 
         if (isListening) {
+
             return;
         }
 
 
-        recognition = new SpeechRecognition();
-
-        recognition.continuous = true;
-        recognition.interimResults = false;
-
-        // Hindi + English
-        recognition.lang = "hi-IN";
+        recognition =
+            new SpeechRecognition();
 
 
-        recognition.onstart = function () {
-
-            isListening = true;
-
-            statusText.innerText =
-                "🎙️ Jarvis सुन रहा है... बोलिए!";
-
-            document.getElementById("startBtn").style.display =
-                "none";
-
-            speak(
-                "Jarvis online है। बोलिए Boss, मैं सुन रहा हूँ।"
-            );
-        };
+        recognition.continuous =
+            true;
 
 
-        recognition.onresult = function (event) {
-
-            const result =
-                event.results[event.results.length - 1][0].transcript;
-
-            const command =
-                result.toLowerCase().trim();
+        recognition.interimResults =
+            false;
 
 
-            heardText.innerText =
-                "आपने कहा: " + result;
+        recognition.lang =
+            "hi-IN";
 
 
-            handleCommand(command);
-        };
+        // =====================================
+        // RECOGNITION START
+        // =====================================
 
+        recognition.onstart =
+            function () {
 
-        recognition.onerror = function (event) {
-
-            console.log(
-                "Recognition error:",
-                event.error
-            );
-
-            if (event.error === "not-allowed") {
+                isListening = true;
 
                 statusText.innerText =
-                    "❌ Microphone permission बंद है।";
+                    "🎙️ Jarvis सुन रहा है...";
 
-                alert(
-                    "Chrome में Microphone permission Allow करें।"
+                document
+                    .getElementById("startBtn")
+                    .style.display =
+                    "none";
+
+
+                speak(
+                    "Jarvis online है Boss। बोलिए।"
+                );
+            };
+
+
+        // =====================================
+        // VOICE RESULT
+        // =====================================
+
+        recognition.onresult =
+            function (event) {
+
+                const result =
+                    event.results[
+                        event.results.length - 1
+                    ][0].transcript;
+
+
+                const command =
+                    result
+                        .toLowerCase()
+                        .trim();
+
+
+                if (!command) {
+
+                    return;
+                }
+
+
+                heardText.innerText =
+                    "आपने कहा: " + result;
+
+
+                // =================================
+                // DUPLICATE COMMAND PROTECTION
+                // =================================
+
+                const now =
+                    Date.now();
+
+
+                if (
+                    command === lastCommand &&
+                    now - lastCommandTime < 3000
+                ) {
+
+                    console.log(
+                        "Duplicate command ignored:",
+                        command
+                    );
+
+                    return;
+                }
+
+
+                lastCommand =
+                    command;
+
+
+                lastCommandTime =
+                    now;
+
+
+                handleCommand(command);
+            };
+
+
+        // =====================================
+        // RECOGNITION ERROR
+        // =====================================
+
+        recognition.onerror =
+            function (event) {
+
+                console.log(
+                    "Recognition error:",
+                    event.error
                 );
 
-                isListening = false;
 
-                return;
-            }
+                if (
+                    event.error ===
+                    "not-allowed"
+                ) {
+
+                    isListening = false;
+
+                    statusText.innerText =
+                        "❌ Microphone permission बंद है।";
+
+                    alert(
+                        "Chrome में Microphone को Allow करें।"
+                    );
+
+                    return;
+                }
 
 
-            if (event.error === "no-speech") {
+                if (
+                    event.error ===
+                    "no-speech"
+                ) {
+
+                    statusText.innerText =
+                        "🎙️ Jarvis सुन रहा है...";
+
+                    return;
+                }
+
 
                 statusText.innerText =
-                    "🎙️ मैं सुन रहा हूँ...";
-
-                return;
-            }
-
-
-            statusText.innerText =
-                "⚠️ Mic error: " + event.error;
-        };
+                    "⚠️ Mic error: " +
+                    event.error;
+            };
 
 
-        recognition.onend = function () {
+        // =====================================
+        // AUTO RESTART
+        // =====================================
 
-            if (isListening && !restarting) {
+        recognition.onend =
+            function () {
 
-                restarting = true;
+                if (
+                    isListening &&
+                    !restarting
+                ) {
 
-                setTimeout(function () {
+                    restarting =
+                        true;
 
-                    restarting = false;
 
-                    try {
-                        recognition.start();
-                    }
-                    catch (error) {
-                        console.log(error);
-                    }
+                    setTimeout(
+                        function () {
 
-                }, 500);
-            }
-        };
+                            restarting =
+                                false;
+
+
+                            try {
+
+                                recognition.start();
+
+                            }
+                            catch (error) {
+
+                                console.log(
+                                    error
+                                );
+                            }
+
+                        },
+                        700
+                    );
+                }
+            };
 
 
         try {
 
             recognition.start();
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.log(error);
 
@@ -324,9 +511,9 @@
     }
 
 
-    // =========================
+    // =========================================
     // STOP JARVIS
-    // =========================
+    // =========================================
 
     function stopJarvis() {
 
@@ -334,51 +521,71 @@
 
         restarting = false;
 
+        isSpeaking = false;
+
+
         if (recognition) {
 
             try {
+
                 recognition.stop();
+
             }
             catch (error) {
+
                 console.log(error);
             }
         }
 
+
         window.speechSynthesis.cancel();
+
 
         statusText.innerText =
             "⛔ Jarvis बंद है।";
 
-        document.getElementById("startBtn").style.display =
+
+        document
+            .getElementById("startBtn")
+            .style.display =
             "inline-block";
     }
 
 
-    // =========================
-    // COMMAND SYSTEM
-    // =========================
+    // =========================================
+    // COMMAND HANDLER
+    // =========================================
 
     function handleCommand(command) {
 
 
+        console.log(
+            "Jarvis command:",
+            command
+        );
+
+
+        // =====================================
         // HELLO
+        // =====================================
 
         if (
             command.includes("hello") ||
             command.includes("हेलो") ||
-            command.includes("हैलो") ||
-            command.includes("hi")
+            command.includes("हैलो")
         ) {
 
             speak(
-                "Hello Boss. बताइए, मैं आपकी क्या मदद कर सकता हूँ?"
+                "Hello Boss. बताइए।"
             );
 
             return;
         }
 
 
+        // =====================================
         // HOW ARE YOU
+        // =====================================
 
         if (
             command.includes("कैसे हो") ||
@@ -386,14 +593,16 @@
         ) {
 
             speak(
-                "मैं बिल्कुल ठीक हूँ Boss. मैं आपकी मदद के लिए तैयार हूँ।"
+                "मैं बिल्कुल ठीक हूँ Boss।"
             );
 
             return;
         }
 
 
+        // =====================================
         // NAME
+        // =====================================
 
         if (
             command.includes("तुम्हारा नाम") ||
@@ -408,7 +617,9 @@
         }
 
 
+        // =====================================
         // TIME
+        // =====================================
 
         if (
             command.includes("समय") ||
@@ -416,7 +627,9 @@
             command.includes("time")
         ) {
 
-            const now = new Date();
+            const now =
+                new Date();
+
 
             const time =
                 now.toLocaleTimeString(
@@ -427,23 +640,28 @@
                     }
                 );
 
+
             speak(
-                "अभी समय है " + time
+                "अभी समय है " +
+                time
             );
 
             return;
         }
 
 
+        // =====================================
         // DATE
+        // =====================================
 
         if (
-            command.includes("आज की तारीख") ||
-            command.includes("date") ||
-            command.includes("तारीख")
+            command.includes("तारीख") ||
+            command.includes("date")
         ) {
 
-            const now = new Date();
+            const now =
+                new Date();
+
 
             const date =
                 now.toLocaleDateString(
@@ -455,15 +673,19 @@
                     }
                 );
 
+
             speak(
-                "आज की तारीख है " + date
+                "आज की तारीख है " +
+                date
             );
 
             return;
         }
 
 
+        // =====================================
         // OPEN GOOGLE
+        // =====================================
 
         if (
             command.includes("google खोलो") ||
@@ -471,18 +693,24 @@
             command.includes("open google")
         ) {
 
-            speak("Google खोल रहा हूँ।");
+            speak(
+                "Google खोल रहा हूँ।"
+            );
+
 
             window.open(
                 "https://www.google.com",
                 "_blank"
             );
 
+
             return;
         }
 
 
+        // =====================================
         // OPEN YOUTUBE
+        // =====================================
 
         if (
             command.includes("youtube खोलो") ||
@@ -490,18 +718,24 @@
             command.includes("open youtube")
         ) {
 
-            speak("YouTube खोल रहा हूँ।");
+            speak(
+                "YouTube खोल रहा हूँ।"
+            );
+
 
             window.open(
                 "https://www.youtube.com",
                 "_blank"
             );
 
+
             return;
         }
 
 
-        // SEARCH GOOGLE
+        // =====================================
+        // GOOGLE SEARCH
+        // =====================================
 
         if (
             command.startsWith("search ") ||
@@ -515,24 +749,32 @@
                     .trim();
 
 
-            if (searchText.length > 0) {
+            if (
+                searchText.length > 0
+            ) {
 
                 speak(
-                    searchText + " को Google पर खोज रहा हूँ।"
+                    "Google पर खोज रहा हूँ।"
                 );
+
 
                 window.open(
                     "https://www.google.com/search?q=" +
-                    encodeURIComponent(searchText),
+                    encodeURIComponent(
+                        searchText
+                    ),
                     "_blank"
                 );
+
 
                 return;
             }
         }
 
 
-        // STOP
+        // =====================================
+        // JARVIS STOP
+        // =====================================
 
         if (
             command.includes("jarvis बंद") ||
@@ -540,23 +782,38 @@
             command.includes("stop jarvis")
         ) {
 
-            speak("ठीक है Boss. Jarvis बंद हो रहा है।");
+            speak(
+                "ठीक है Boss। Jarvis बंद हो रहा है।"
+            );
+
 
             setTimeout(
-                stopJarvis,
-                1000
+                function () {
+
+                    stopJarvis();
+
+                },
+                1200
             );
+
 
             return;
         }
 
 
+        // =====================================
         // UNKNOWN COMMAND
+        // =====================================
+        // IMPORTANT:
+        // Jarvis अब unknown command पर
+        // बार-बार आवाज़ में नहीं बोलेगा।
 
-        speak(
-            "मैंने सुना: " +
-            command +
-            ". अभी यह command मेरे system में नहीं है।"
+        statusText.innerText =
+            "🤔 Command समझ नहीं आई।";
+
+        console.log(
+            "Unknown command:",
+            command
         );
     }
 
