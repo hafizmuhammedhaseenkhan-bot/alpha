@@ -1,648 +1,237 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS AI Assistant</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background:
-                radial-gradient(circle at center, #123456 0%, #06111f 45%, #020711 100%);
-            color: white;
-            font-family: "Segoe UI", Arial, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 600px;
-            text-align: center;
-            padding: 45px 30px;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(0,210,255,0.25);
-            box-shadow: 0 0 50px rgba(0,180,255,0.15);
-            backdrop-filter: blur(15px);
-        }
-
-        h1 {
-            font-size: 42px;
-            color: #00d9ff;
-            letter-spacing: 5px;
-            text-shadow: 0 0 20px #00d9ff;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #8da9bd;
-            margin-bottom: 25px;
-        }
-
-        .orb {
-            width: 150px;
-            height: 150px;
-            margin: 25px auto;
-            border-radius: 50%;
-            border: 3px solid #00d9ff;
-            box-shadow:
-                0 0 20px #00d9ff,
-                0 0 50px rgba(0,217,255,0.5),
-                inset 0 0 30px rgba(0,217,255,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 55px;
-            transition: 0.3s;
-        }
-
-        .orb.listening {
-            animation: pulse 1.2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 20px #00d9ff;
-            }
-            50% {
-                transform: scale(1.08);
-                box-shadow: 0 0 60px #00d9ff;
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px #00d9ff;
-            }
-        }
-
-        #status {
-            min-height: 50px;
-            color: #d5e9f5;
-            font-size: 18px;
-            margin: 20px 0 10px;
-        }
-
-        #heard {
-            min-height: 30px;
-            color: #55dfff;
-            font-size: 15px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            border: none;
-            border-radius: 50px;
-            padding: 14px 35px;
-            background: linear-gradient(135deg, #00d9ff, #0077ff);
-            color: white;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(0,180,255,0.4);
-        }
-
-        button:hover {
-            transform: scale(1.04);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: default;
-        }
-
-        .online {
-            color: #4cff9b !important;
-        }
-
-        .error {
-            color: #ff7777 !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI Assistant</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: radial-gradient(circle at center, #123456 0%, #06111f 45%, #020711 100%);
+  color: white; font-family: "Segoe UI", Arial, sans-serif;
+  height: 100vh; overflow: hidden;
+  display: flex; justify-content: center; align-items: center;
+}
+.container {
+  width: 92%; max-width: 600px; text-align: center; padding: 45px 30px;
+  border-radius: 25px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(0,210,255,0.25);
+  box-shadow: 0 0 50px rgba(0,180,255,0.15); backdrop-filter: blur(15px);
+}
+h1 { font-size: 42px; color: #00d9ff; letter-spacing: 5px; text-shadow: 0 0 20px #00d9ff; margin-bottom: 10px; }
+.subtitle { color: #8da9bd; margin-bottom: 25px; }
+.orb {
+  width: 150px; height: 150px; margin: 25px auto; border-radius: 50%;
+  border: 3px solid #00d9ff;
+  box-shadow: 0 0 20px #00d9ff, 0 0 50px rgba(0,217,255,0.5), inset 0 0 30px rgba(0,217,255,0.3);
+  display: flex; justify-content: center; align-items: center; font-size: 55px; transition: 0.3s;
+}
+.orb.listening { animation: pulse 1.2s infinite; }
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 20px #00d9ff; }
+  50% { transform: scale(1.08); box-shadow: 0 0 60px #00d9ff; }
+  100% { transform: scale(1); box-shadow: 0 0 20px #00d9ff; }
+}
+#status { min-height: 50px; color: #d5e9f5; font-size: 18px; margin: 20px 0 10px; }
+#heard { min-height: 30px; color: #55dfff; font-size: 15px; margin-bottom: 20px; }
+button {
+  border: none; border-radius: 50px; padding: 14px 35px;
+  background: linear-gradient(135deg, #00d9ff, #0077ff); color: white;
+  font-size: 17px; font-weight: bold; cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,180,255,0.4);
+}
+button:hover { transform: scale(1.04); }
+.online { color: #4cff9b !important; }
+.error { color: #ff7777 !important; }
+</style>
 </head>
-
 <body>
 
 <div class="container">
-
-    <h1>JARVIS</h1>
-    <div class="subtitle">AI VOICE ASSISTANT</div>
-
-    <div id="orb" class="orb">🤖</div>
-
-    <div id="status">
-        Start Jarvis दबाइए।
-    </div>
-
-    <div id="heard"></div>
-
-    <button id="startBtn" onclick="startJarvis()">
-        START JARVIS
-    </button>
-
+  <h1>JARVIS</h1>
+  <div class="subtitle">AI VOICE ASSISTANT</div>
+  <div id="orb" class="orb">🤖</div>
+  <div id="status">Start Jarvis दबाइए।</div>
+  <div id="heard"></div>
+  <button id="startBtn" onclick="startJarvis()">START JARVIS</button>
 </div>
 
-
 <script>
+let recognition = null;
+let jarvisRunning = false;
+let speaking = false;
+let listening = false;
+let restartTimer = null;
+let speakId = 0;
+let voices = [];
 
-    let recognition = null;
-    let jarvisRunning = false;
-    let speaking = false;
+const statusText = document.getElementById("status");
+const heardText = document.getElementById("heard");
+const startButton = document.getElementById("startBtn");
+const orb = document.getElementById("orb");
 
-    const statusText = document.getElementById("status");
-    const heardText = document.getElementById("heard");
-    const startButton = document.getElementById("startBtn");
-    const orb = document.getElementById("orb");
+function setStatus(text, type = "") {
+  statusText.innerText = text;
+  statusText.className = type;
+}
 
+function loadVoices() { voices = window.speechSynthesis.getVoices(); }
+if ("speechSynthesis" in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
 
-    // =========================
-    // JARVIS VOICE
-    // =========================
+function scheduleListen(ms) {
+  clearTimeout(restartTimer);
+  restartTimer = setTimeout(startListening, ms);
+}
 
-    function speak(text) {
+function startListening() {
+  if (!jarvisRunning || speaking || listening || !recognition) return;
+  try { recognition.start(); } catch (e) {}
+}
 
-        if (!("speechSynthesis" in window)) {
-            return;
-        }
+function speak(text) {
+  if (!("speechSynthesis" in window)) { speaking = false; scheduleListen(500); return; }
 
-        speaking = true;
+  speaking = true;
+  clearTimeout(restartTimer);
+  try { recognition && recognition.abort(); } catch (e) {}
+  window.speechSynthesis.cancel();
 
-        window.speechSynthesis.cancel();
+  const id = ++speakId;
+  const utter = new SpeechSynthesisUtterance(text);
+  const hindi = voices.find(v => v.lang.toLowerCase().startsWith("hi"));
+  if (hindi) { utter.voice = hindi; utter.lang = hindi.lang; }
+  else { utter.lang = "en-US"; }
+  utter.rate = 0.95;
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
 
-        const voice = new SpeechSynthesisUtterance(text);
+  let finished = false;
+  const done = function() {
+    if (finished || id !== speakId) return;
+    finished = true;
+    speaking = false;
+    scheduleListen(600);
+  };
+  utter.onend = done;
+  utter.onerror = done;
+  setTimeout(done, 6000 + text.length * 120);
 
-        voice.lang = "hi-IN";
-        voice.rate = 0.95;
-        voice.pitch = 1.0;
-        voice.volume = 1.0;
+  setTimeout(function() { window.speechSynthesis.speak(utter); }, 100);
+}
 
-        voice.onend = function() {
-            speaking = false;
+function startJarvis() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-            if (jarvisRunning) {
-                setTimeout(startListening, 400);
-            }
-        };
+  if (!SpeechRecognition) {
+    setStatus("Speech Recognition उपलब्ध नहीं है। Chrome इस्तेमाल करें।", "error");
+    return;
+  }
+  if (jarvisRunning) return;
 
-        window.speechSynthesis.speak(voice);
+  jarvisRunning = true;
+  recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function() {
+    listening = true;
+    orb.classList.add("listening");
+    setStatus("JARVIS सुन रहा है... बोलिए!", "online");
+  };
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript.toLowerCase().trim();
+    heardText.innerText = "आपने कहा: " + transcript;
+    orb.classList.remove("listening");
+    processCommand(transcript);
+  };
+
+  recognition.onerror = function(event) {
+    console.log("Speech error:", event.error);
+    listening = false;
+    orb.classList.remove("listening");
+
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      setStatus("Microphone permission बंद है। Chrome में microphone Allow करें।", "error");
+      jarvisRunning = false;
+      startButton.style.display = "inline-block";
     }
+  };
 
+  recognition.onend = function() {
+    listening = false;
+    orb.classList.remove("listening");
+    if (jarvisRunning && !speaking) scheduleListen(500);
+  };
 
-    // =========================
-    // STATUS
-    // =========================
+  startButton.style.display = "none";
+  setStatus("JARVIS शुरू हो रहा है...", "online");
+  speak("Jarvis online है, बोलिए boss, मैं सुन रहा हूँ।");
+}
 
-    function setStatus(text, type = "") {
+const COMMANDS = [
+  { keys: ["hello", "हेलो", "हैलो", "hi jarvis", "हाय jarvis"],
+    reply: "Hello boss, Jarvis आपकी मदद के लिए तैयार है।" },
+  { keys: ["jarvis open", "जार्विस खोलो", "जार्विस ऑनलाइन"],
+    reply: "Yes boss, Jarvis online है।" },
+  { keys: ["तुम्हारा नाम", "your name", "who are you"],
+    reply: "मेरा नाम Jarvis है। मैं आपका personal AI voice assistant हूँ।" },
+  { keys: ["कैसे हो", "कैसा है", "how are you"],
+    reply: "मैं बिल्कुल ठीक हूँ boss। और आपकी मदद के लिए तैयार हूँ।" },
+  { keys: ["thank you", "धन्यवाद", "शुक्रिया"],
+    reply: "You're welcome boss." },
+  { keys: ["youtube", "यूट्यूब"],
+    reply: "YouTube खोला जा रहा है boss।", url: "https://www.youtube.com" },
+  { keys: ["google", "गूगल"],
+    reply: "Google खोला जा रहा है boss।", url: "https://www.google.com" },
+  { keys: ["facebook", "फेसबुक"],
+    reply: "Facebook खोला जा रहा है।", url: "https://www.facebook.com" },
+  { keys: ["instagram", "इंस्टाग्राम"],
+    reply: "Instagram खोला जा रहा है।", url: "https://www.instagram.com" }
+];
 
-        statusText.innerText = text;
+function openLater(url) {
+  setTimeout(function() { window.open(url, "_blank"); }, 800);
+}
 
-        statusText.className = type;
+function processCommand(command) {
+
+  if (command.startsWith("search ") || command.startsWith("सर्च ")) {
+    const query = command.replace("search ", "").replace("सर्च ", "").trim();
+    if (query.length > 0) {
+      speak(query + " को Google पर खोज रहा हूँ।");
+      openLater("https://www.google.com/search?q=" + encodeURIComponent(query));
+      return;
     }
+  }
 
-
-    // =========================
-    // START JARVIS
-    // =========================
-
-    function startJarvis() {
-
-        const SpeechRecognition =
-            window.SpeechRecognition ||
-            window.webkitSpeechRecognition;
-
-        if (!SpeechRecognition) {
-
-            setStatus(
-                "Speech Recognition उपलब्ध नहीं है। Chrome इस्तेमाल करें।",
-                "error"
-            );
-
-            return;
-        }
-
-        if (jarvisRunning) {
-            return;
-        }
-
-        jarvisRunning = true;
-
-        recognition = new SpeechRecognition();
-
-        recognition.lang = "hi-IN";
-
-        recognition.continuous = false;
-
-        recognition.interimResults = false;
-
-        recognition.maxAlternatives = 1;
-
-
-        // जब सुनना शुरू हो
-
-        recognition.onstart = function() {
-
-            orb.classList.add("listening");
-
-            setStatus(
-                "JARVIS सुन रहा है... बोलिए!",
-                "online"
-            );
-        };
-
-
-        // जब आवाज़ मिले
-
-        recognition.onresult = function(event) {
-
-            const transcript =
-                event.results[0][0].transcript
-                .toLowerCase()
-                .trim();
-
-            heardText.innerText =
-                "आपने कहा: " + transcript;
-
-            orb.classList.remove("listening");
-
-            processCommand(transcript);
-        };
-
-
-        // Error
-
-        recognition.onerror = function(event) {
-
-            console.log("Speech error:", event.error);
-
-            orb.classList.remove("listening");
-
-            if (event.error === "not-allowed") {
-
-                setStatus(
-                    "Microphone permission बंद है। Chrome में microphone Allow करें।",
-                    "error"
-                );
-
-                jarvisRunning = false;
-                startButton.style.display = "inline-block";
-
-                return;
-            }
-
-            if (event.error === "no-speech") {
-
-                setStatus("मैं सुन नहीं पाया... फिर से बोलिए।");
-
-                setTimeout(startListening, 700);
-
-                return;
-            }
-
-            setStatus("Voice system दोबारा शुरू हो रहा है...");
-
-            setTimeout(startListening, 1000);
-        };
-
-
-        // Recognition खत्म होने पर दोबारा शुरू
-
-        recognition.onend = function() {
-
-            orb.classList.remove("listening");
-
-            if (jarvisRunning && !speaking) {
-
-                setTimeout(startListening, 500);
-            }
-        };
-
-
-        startButton.style.display = "none";
-
-        setStatus("JARVIS शुरू हो रहा है...", "online");
-
-        speak(
-            "Jarvis online है, बोलिए boss, मैं सुन रहा हूँ।"
-        );
+  for (const c of COMMANDS) {
+    if (c.keys.some(k => command.includes(k))) {
+      speak(c.reply);
+      if (c.url) openLater(c.url);
+      return;
     }
-
-
-    // =========================
-    // LISTEN AGAIN
-    // =========================
-
-    function startListening() {
-
-        if (!jarvisRunning || speaking || !recognition) {
-            return;
-        }
-
-        try {
-
-            recognition.start();
-
-        } catch (error) {
-
-            setTimeout(function() {
-
-                try {
-                    recognition.start();
-                } catch (e) {}
-
-            }, 800);
-        }
-    }
-
-
-    // =========================
-    // COMMAND SYSTEM
-    // =========================
-
-    function processCommand(command) {
-
-        // HELLO
-
-        if (
-            command.includes("hello") ||
-            command.includes("हेलो") ||
-            command.includes("हैलो") ||
-            command.includes("hi jarvis") ||
-            command.includes("हाय jarvis")
-        ) {
-
-            speak(
-                "Hello boss, Jarvis आपकी मदद के लिए तैयार है।"
-            );
-
-            return;
-        }
-
-
-        // JARVIS OPEN / ONLINE
-
-        if (
-            command.includes("jarvis open") ||
-            command.includes("जार्विस खोलो") ||
-            command.includes("जार्विस ऑनलाइन")
-        ) {
-
-            speak(
-                "Yes boss, Jarvis online है।"
-            );
-
-            return;
-        }
-
-
-        // NAME
-
-        if (
-            command.includes("तुम्हारा नाम") ||
-            command.includes("your name") ||
-            command.includes("who are you")
-        ) {
-
-            speak(
-                "मेरा नाम Jarvis है। मैं आपका personal AI voice assistant हूँ।"
-            );
-
-            return;
-        }
-
-
-        // HOW ARE YOU
-
-        if (
-            command.includes("कैसे हो") ||
-            command.includes("कैसा है") ||
-            command.includes("how are you")
-        ) {
-
-            speak(
-                "मैं बिल्कुल ठीक हूँ boss। और आपकी मदद के लिए तैयार हूँ।"
-            );
-
-            return;
-        }
-
-
-        // THANK YOU
-
-        if (
-            command.includes("thank you") ||
-            command.includes("धन्यवाद") ||
-            command.includes("शुक्रिया")
-        ) {
-
-            speak(
-                "You're welcome boss."
-            );
-
-            return;
-        }
-
-
-        // YOUTUBE
-
-        if (
-            command.includes("youtube") ||
-            command.includes("यूट्यूब")
-        ) {
-
-            speak(
-                "YouTube खोला जा रहा है boss।"
-            );
-
-            setTimeout(function() {
-
-                window.open(
-                    "https://www.youtube.com",
-                    "_blank"
-                );
-
-            }, 800);
-
-            return;
-        }
-
-
-        // GOOGLE
-
-        if (
-            command.includes("google") ||
-            command.includes("गूगल")
-        ) {
-
-            speak(
-                "Google खोला जा रहा है boss।"
-            );
-
-            setTimeout(function() {
-
-                window.open(
-                    "https://www.google.com",
-                    "_blank"
-                );
-
-            }, 800);
-
-            return;
-        }
-
-
-        // FACEBOOK
-
-        if (
-            command.includes("facebook") ||
-            command.includes("फेसबुक")
-        ) {
-
-            speak(
-                "Facebook खोला जा रहा है।"
-            );
-
-            setTimeout(function() {
-
-                window.open(
-                    "https://www.facebook.com",
-                    "_blank"
-                );
-
-            }, 800);
-
-            return;
-        }
-
-
-        // INSTAGRAM
-
-        if (
-            command.includes("instagram") ||
-            command.includes("इंस्टाग्राम")
-        ) {
-
-            speak(
-                "Instagram खोला जा रहा है।"
-            );
-
-            setTimeout(function() {
-
-                window.open(
-                    "https://www.instagram.com",
-                    "_blank"
-                );
-
-            }, 800);
-
-            return;
-        }
-
-
-        // TIME
-
-        if (
-            command.includes("समय") ||
-            command.includes("टाइम") ||
-            command.includes("time")
-        ) {
-
-            const now = new Date();
-
-            const time =
-                now.toLocaleTimeString(
-                    "hi-IN",
-                    {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }
-                );
-
-            speak(
-                "अभी समय है " + time
-            );
-
-            return;
-        }
-
-
-        // DATE
-
-        if (
-            command.includes("आज की तारीख") ||
-            command.includes("आज की डेट") ||
-            command.includes("date")
-        ) {
-
-            const now = new Date();
-
-            const date =
-                now.toLocaleDateString(
-                    "hi-IN",
-                    {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric"
-                    }
-                );
-
-            speak(
-                "आज की तारीख है " + date
-            );
-
-            return;
-        }
-
-
-        // SEARCH GOOGLE
-
-        if (
-            command.startsWith("search ") ||
-            command.startsWith("सर्च ")
-        ) {
-
-            let query = command
-                .replace("search ", "")
-                .replace("सर्च ", "")
-                .trim();
-
-            if (query.length > 0) {
-
-                speak(
-                    query + " को Google पर खोज रहा हूँ।"
-                );
-
-                setTimeout(function() {
-
-                    window.open(
-                        "https://www.google.com/search?q=" +
-                        encodeURIComponent(query),
-                        "_blank"
-                    );
-
-                }, 800);
-
-                return;
-            }
-        }
-
-
-        // UNKNOWN COMMAND
-
-        speak(
-            "Boss, मैंने आपकी बात सुनी, लेकिन यह command अभी मेरे system में नहीं है।"
-        );
-    }
-
-
+  }
+
+  if (command.includes("समय") || command.includes("टाइम") || command.includes("time")) {
+    const t = new Date().toLocaleTimeString("hi-IN", { hour: "2-digit", minute: "2-digit" });
+    speak("अभी समय है " + t);
+    return;
+  }
+
+  if (command.includes("आज की तारीख") || command.includes("आज की डेट") || command.includes("date")) {
+    const d = new Date().toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" });
+    speak("आज की तारीख है " + d);
+    return;
+  }
+
+  speak("Boss, मैंने आपकी बात सुनी, लेकिन यह command अभी मेरे system में नहीं है।");
+}
 </script>
 
 </body>
