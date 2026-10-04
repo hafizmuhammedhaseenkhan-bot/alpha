@@ -1,270 +1,133 @@
-import datetime
-import os
-import random
-import re
-import subprocess
-import urllib.parse
-import webbrowser
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Jarvis UI</title>
+    <style>
+        body {
+            background-color: #050b14;
+            color: #00ffff;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .arc-reactor {
+            width: 200px;
+            height: 200px;
+            border: 5px solid #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #00ffff, inset 0 0 30px #00ffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+            margin-bottom: 30px;
+        }
+        .inner-core {
+            width: 100px;
+            height: 100px;
+            border: 3px dashed #ffffff;
+            border-radius: 50%;
+            animation: spin 10s linear infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff; }
+            50% { box-shadow: 0 0 40px #00ffff, inset 0 0 40px #00ffff; }
+            100% { box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff; }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        button {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ffff;
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #00ffff;
+            color: #050b14;
+            box-shadow: 0 0 20px #00ffff;
+        }
+        #response-text {
+            margin-top: 25px;
+            font-size: 22px;
+            text-shadow: 0 0 10px #00ffff;
+        }
+    </style>
+</head>
+<body>
 
-import pyautogui
-import pyttsx3
-import requests
-import speech_recognition as sr
+    <div class="container">
+        <div class="arc-reactor">
+            <div class="inner-core"></div>
+        </div>
+        <button id="start-btn">JARVIS को सक्रिय करें</button>
+        <p id="response-text">सिस्टम ऑनलाइन है। आदेश दें...</p>
+    </div>
 
-engine = pyttsx3.init()
-engine.setProperty("rate", 170)
-recognizer = sr.Recognizer()
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const responseText = document.getElementById('response-text');
 
-# ========== AI से बातचीत (Gemini) ==========
-# नीचे की लाइन में अपनी key डालें। इस फ़ाइल को GitHub पर कभी न डालें।
-GEMINI_API_KEY = "YAHAN_APNI_KEY_DALEN"
-MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
-API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'hi-IN';
+        recognition.continuous = false;
 
-HINDI_VOICE = False
-for v in engine.getProperty("voices"):
-    if "hindi" in v.name.lower():
-        engine.setProperty("voice", v.id)
-        HINDI_VOICE = True
-        break
+        const speak = (text) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN';
+            window.speechSynthesis.speak(utterance);
+            responseText.innerText = text;
+        };
 
-LANG_RULE = "Hindi in Devanagari script" if HINDI_VOICE else "Hinglish (Hindi written in English letters)"
-SYSTEM_PROMPT = ("You are Jarvis, a friendly voice assistant. Reply in " + LANG_RULE +
-                 ". Keep answers to 1-3 short sentences, plain text only, "
-                 "no lists, no symbols, no emojis.")
-history = []
-model_index = 0
+        startBtn.addEventListener('click', () => {
+            recognition.start();
+            speak("सुन रहा हूँ सर...");
+        });
 
+        recognition.onresult = (event) => {
+            const command = event.results[0][0].transcript.toLowerCase();
+            console.log("Command: " + command);
 
-def ask_ai(question):
-    global model_index
-    if GEMINI_API_KEY.startswith("YAHAN"):
-        return None
-    history.append({"role": "user", "parts": [{"text": question}]})
-    body = {"systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]}, "contents": history}
-    for i in range(model_index, len(MODELS)):
-        try:
-            r = requests.post(API_URL.format(MODELS[i]),
-                              headers={"x-goog-api-key": GEMINI_API_KEY},
-                              json=body, timeout=30)
-        except Exception as e:
-            print("Internet/API error:", e)
-            break
-        if r.status_code == 200:
-            try:
-                text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
-            except Exception:
-                break
-            text = re.sub(r"[*#`_]", "", text).strip()
-            model_index = i
-            history.append({"role": "model", "parts": [{"text": text}]})
-            del history[:-12]
-            return text
-        print("API error", r.status_code, r.text[:200])
-        if r.status_code != 404:
-            break
-    history.pop()
-    return None
+            if (command.includes('youtube खोलो') || command.includes('youtube')) {
+                speak('यूट्यूब खोल रहा हूँ।');
+                window.open('https://www.youtube.com', '_blank');
+            } else if (command.includes('google') || command.includes('गूगल')) {
+                speak('गूगल सर्च ओपन कर रहा हूँ।');
+                window.open('https://www.google.com', '_blank');
+            } else if (command.includes('तुम्हारा नाम क्या है')) {
+                speak('मेरा नाम जार्विस है, आपका एडवांस डिजिटल असिस्टेंट।');
+            } else if (command.includes('आज की तारीख')) {
+                const date = new Date().toLocaleDateString('hi-IN');
+                speak('आज की तारीख है ' + date);
+            } else if (command.includes('समय क्या है') || command.includes('समय')) {
+                const time = new Date().toLocaleTimeString('hi-IN');
+                speak('अभी समय हुआ है ' + time);
+            } else {
+                speak('माफ़ करें, मैं इस कमांड को समझ नहीं पाया।');
+            }
+        };
 
-
-def speak(text):
-    print("Jarvis:", text)
-    engine.say(text)
-    engine.runAndWait()
-
-
-def listen():
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source, duration=0.5)
-        print("Sun raha hoon...")
-        try:
-            audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
-            text = recognizer.recognize_google(audio, language="hi-IN")
-            print("Aapne kaha:", text)
-            return text.lower().strip()
-        except Exception:
-            return ""
-
-
-def has(cmd, keys):
-    return any(k in cmd for k in keys)
-
-
-def confirm(question):
-    speak(question + " Haan ya na bolo.")
-    answer = listen()
-    return has(answer, ["हाँ", "हां", "haan", "han", "yes", "ha "])
-
-
-SHUTDOWN = ["शटडाउन", "शट डाउन", "shutdown", "shut down", "पीसी बंद", "कंप्यूटर बंद", "लैपटॉप बंद"]
-CANCEL = ["रोको", "cancel", "कैंसल", "रद्द"]
-STOP = ["exit", "quit", "अलविदा", "goodbye", "जार्विस बंद", "jarvis बंद"]
-CLOSE_ALL = ["सब बंद", "सारे ऐप", "सारी ऐप", "सभी ऐप", "सब ऐप", "close all", "all apps"]
-CLOSE_WINDOW = ["विंडो बंद", "window बंद", "इसे बंद", "इसको बंद", "इसको हटा", "इसे हटा",
-                "हटाओ", "close this", "close window"]
-HOME = ["होम स्क्रीन", "डेस्कटॉप", "desktop", "home screen", "होम पर"]
-
-APPS_TO_CLOSE = ["chrome.exe", "msedge.exe", "firefox.exe", "notepad.exe", "mspaint.exe",
-                 "CalculatorApp.exe", "WhatsApp.exe", "Spotify.exe", "vlc.exe", "wmplayer.exe"]
-
-APPS = [
-    (["notepad", "नोटपैड"], "notepad", "Notepad"),
-    (["calculator", "कैलकुलेटर", "कैलक्युलेटर"], "calc", "Calculator"),
-    (["paint", "पेंट"], "mspaint", "Paint"),
-    (["chrome", "क्रोम"], "chrome", "Chrome"),
-]
-
-SITES = [
-    (["youtube", "यूट्यूब"], "https://www.youtube.com", "YouTube"),
-    (["whatsapp", "व्हाट्सएप", "व्हाट्सअप"], "https://web.whatsapp.com", "WhatsApp"),
-    (["facebook", "फेसबुक"], "https://www.facebook.com", "Facebook"),
-    (["instagram", "इंस्टाग्राम"], "https://www.instagram.com", "Instagram"),
-    (["gmail", "जीमेल", "ईमेल"], "https://mail.google.com", "Gmail"),
-    (["map", "मैप", "नक्शा"], "https://maps.google.com", "Maps"),
-    (["google", "गूगल"], "https://www.google.com", "Google"),
-]
-
-JOKES = [
-    "Teacher ne pucha sabse tez cheez kya hai. Bachcha bola, chhutti ki ghanti.",
-    "Mareez ne doctor se kaha, mujhe bhoolne ki bimari hai. Doctor ne pucha, kab se? Mareez bola, kisse?",
-    "Papa ne kaha mobile rakh do. Beta bola, papa aap bhi to remote nahi chhodte.",
-]
-
-
-def google_search(query):
-    webbrowser.open("https://www.google.com/search?q=" + urllib.parse.quote(query))
-
-
-def play_on_youtube(query):
-    try:
-        import pywhatkit
-        pywhatkit.playonyt(query)
-    except Exception:
-        webbrowser.open("https://www.youtube.com/results?search_query=" + urllib.parse.quote(query))
-
-
-def handle(cmd):
-    if has(cmd, STOP):
-        speak("Theek hai boss, Jarvis band ho raha hai.")
-        return False
-
-    if has(cmd, SHUTDOWN) and has(cmd, CANCEL):
-        os.system("shutdown /a")
-        speak("Shutdown cancel kar diya.")
-        return True
-
-    if has(cmd, SHUTDOWN):
-        if confirm("Boss, kya sach me PC band karna hai?"):
-            os.system("shutdown /s /t 15")
-            speak("PC 15 second me band hoga. Rokne ke liye bolo shutdown roko.")
-        else:
-            speak("Theek hai, PC band nahi kar raha.")
-        return True
-
-    if has(cmd, CLOSE_ALL):
-        if confirm("Boss, saare khule app band kar du? Unsaved kaam jaa sakta hai."):
-            for app in APPS_TO_CLOSE:
-                subprocess.run(["taskkill", "/f", "/im", app],
-                               capture_output=True, text=True)
-            pyautogui.hotkey("win", "d")
-            speak("Saare apps band kar diye.")
-        else:
-            speak("Theek hai, kuch band nahi kiya.")
-        return True
-
-    if has(cmd, CLOSE_WINDOW):
-        pyautogui.hotkey("alt", "f4")
-        speak("Window band kar di.")
-        return True
-
-    if has(cmd, HOME):
-        pyautogui.hotkey("win", "d")
-        speak("Home screen par aa gaya.")
-        return True
-
-    if has(cmd, ["आवाज़ बढ़ा", "आवाज बढ़ा", "volume up", "वॉल्यूम बढ़ा"]):
-        pyautogui.press("volumeup", presses=5)
-        speak("Awaaz badha di.")
-        return True
-
-    if has(cmd, ["आवाज़ कम", "आवाज कम", "volume down", "वॉल्यूम कम"]):
-        pyautogui.press("volumedown", presses=5)
-        speak("Awaaz kam kar di.")
-        return True
-
-    if has(cmd, ["म्यूट", "mute"]):
-        pyautogui.press("volumemute")
-        speak("Mute kar diya.")
-        return True
-
-    if has(cmd, ["चलाओ", "बजाओ", "चला दो", "play "]):
-        query = re.sub(
-            r"youtube|यूट्यूब|खोलो|खोल|और|उसमें|इसमें|चलाओ|चला दो|बजाओ|play|on|पर|वीडियो",
-            " ", cmd)
-        query = re.sub(r"\s+", " ", query).strip() or cmd
-        speak("YouTube par chala raha hoon.")
-        play_on_youtube(query)
-        return True
-
-    if has(cmd, ["समय", "टाइम", "time"]):
-        speak("Abhi samay hai " + datetime.datetime.now().strftime("%I:%M %p"))
-        return True
-
-    if has(cmd, ["तारीख", "डेट", "date"]):
-        speak("Aaj ki tareekh hai " + datetime.datetime.now().strftime("%d %B %Y"))
-        return True
-
-    if has(cmd, ["जोक", "चुटकुला", "joke"]):
-        speak(random.choice(JOKES))
-        return True
-
-    if has(cmd, ["तुम्हारा नाम", "तुम कौन", "your name", "who are you"]):
-        speak("Mera naam Jarvis hai. Main aapka personal assistant hoon.")
-        return True
-
-    if has(cmd, ["हेलो", "हैलो", "hello", "hi jarvis"]):
-        speak("Hello boss, main taiyaar hoon.")
-        return True
-
-    for keys, command, name in APPS:
-        if has(cmd, keys):
-            subprocess.Popen(["cmd", "/c", "start", "", command])
-            speak(name + " khol raha hoon.")
-            return True
-
-    for keys, url, name in SITES:
-        if has(cmd, keys):
-            webbrowser.open(url)
-            speak(name + " khol raha hoon.")
-            return True
-
-    if cmd.startswith("search ") or cmd.startswith("सर्च "):
-        query = cmd.replace("search ", "").replace("सर्च ", "").strip()
-        speak("Google par khoj raha hoon.")
-        google_search(query)
-        return True
-
-    answer = ask_ai(cmd)
-    if answer:
-        speak(answer)
-    elif len(cmd.split()) >= 2:
-        speak("Google par khoj raha hoon.")
-        google_search(cmd)
-    else:
-        speak("Boss, main samajh nahi paya. Phir se boliye.")
-    return True
-
-
-def main():
-    pyautogui.FAILSAFE = True
-    speak("Jarvis online hai boss. Boliye.")
-    while True:
-        cmd = listen()
-        if not cmd:
-            continue
-        if not handle(cmd):
-            break
-
-
-if _name_ == "_main_":
-    main()
+        recognition.onerror = () => {
+            speak('कुछ तकनीकी समस्या आई है, कृपया पुनः प्रयास करें।');
+        };
+    </script>
+</body>
+</html>
