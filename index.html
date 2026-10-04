@@ -1,3 +1,274 @@
+@@ -1,270 +1,133 @@
+import datetime
+import os
+import random
+import re
+import subprocess
+import urllib.parse
+import webbrowser
+
+import pyautogui
+import pyttsx3
+import requests
+import speech_recognition as sr
+
+engine = pyttsx3.init()
+engine.setProperty("rate", 170)
+recognizer = sr.Recognizer()
+
+# ========== AI से बातचीत (Gemini) ==========
+# नीचे की लाइन में अपनी key डालें। इस फ़ाइल को GitHub पर कभी न डालें।
+GEMINI_API_KEY = "YAHAN_APNI_KEY_DALEN"
+MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-2.5-flash"]
+API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+
+HINDI_VOICE = False
+for v in engine.getProperty("voices"):
+    if "hindi" in v.name.lower():
+        engine.setProperty("voice", v.id)
+        HINDI_VOICE = True
+        break
+
+LANG_RULE = "Hindi in Devanagari script" if HINDI_VOICE else "Hinglish (Hindi written in English letters)"
+SYSTEM_PROMPT = ("You are Jarvis, a friendly voice assistant. Reply in " + LANG_RULE +
+                 ". Keep answers to 1-3 short sentences, plain text only, "
+                 "no lists, no symbols, no emojis.")
+history = []
+model_index = 0
+
+
+def ask_ai(question):
+    global model_index
+    if GEMINI_API_KEY.startswith("YAHAN"):
+        return None
+    history.append({"role": "user", "parts": [{"text": question}]})
+    body = {"systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]}, "contents": history}
+    for i in range(model_index, len(MODELS)):
+        try:
+            r = requests.post(API_URL.format(MODELS[i]),
+                              headers={"x-goog-api-key": GEMINI_API_KEY},
+                              json=body, timeout=30)
+        except Exception as e:
+            print("Internet/API error:", e)
+            break
+        if r.status_code == 200:
+            try:
+                text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+            except Exception:
+                break
+            text = re.sub(r"[*#`_]", "", text).strip()
+            model_index = i
+            history.append({"role": "model", "parts": [{"text": text}]})
+            del history[:-12]
+            return text
+        print("API error", r.status_code, r.text[:200])
+        if r.status_code != 404:
+            break
+    history.pop()
+    return None
+
+
+def speak(text):
+    print("Jarvis:", text)
+    engine.say(text)
+    engine.runAndWait()
+
+
+def listen():
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=0.5)
+        print("Sun raha hoon...")
+        try:
+            audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
+            text = recognizer.recognize_google(audio, language="hi-IN")
+            print("Aapne kaha:", text)
+            return text.lower().strip()
+        except Exception:
+            return ""
+
+
+def has(cmd, keys):
+    return any(k in cmd for k in keys)
+
+
+def confirm(question):
+    speak(question + " Haan ya na bolo.")
+    answer = listen()
+    return has(answer, ["हाँ", "हां", "haan", "han", "yes", "ha "])
+
+
+SHUTDOWN = ["शटडाउन", "शट डाउन", "shutdown", "shut down", "पीसी बंद", "कंप्यूटर बंद", "लैपटॉप बंद"]
+CANCEL = ["रोको", "cancel", "कैंसल", "रद्द"]
+STOP = ["exit", "quit", "अलविदा", "goodbye", "जार्विस बंद", "jarvis बंद"]
+CLOSE_ALL = ["सब बंद", "सारे ऐप", "सारी ऐप", "सभी ऐप", "सब ऐप", "close all", "all apps"]
+CLOSE_WINDOW = ["विंडो बंद", "window बंद", "इसे बंद", "इसको बंद", "इसको हटा", "इसे हटा",
+                "हटाओ", "close this", "close window"]
+HOME = ["होम स्क्रीन", "डेस्कटॉप", "desktop", "home screen", "होम पर"]
+
+APPS_TO_CLOSE = ["chrome.exe", "msedge.exe", "firefox.exe", "notepad.exe", "mspaint.exe",
+                 "CalculatorApp.exe", "WhatsApp.exe", "Spotify.exe", "vlc.exe", "wmplayer.exe"]
+
+APPS = [
+    (["notepad", "नोटपैड"], "notepad", "Notepad"),
+    (["calculator", "कैलकुलेटर", "कैलक्युलेटर"], "calc", "Calculator"),
+    (["paint", "पेंट"], "mspaint", "Paint"),
+    (["chrome", "क्रोम"], "chrome", "Chrome"),
+]
+
+SITES = [
+    (["youtube", "यूट्यूब"], "https://www.youtube.com", "YouTube"),
+    (["whatsapp", "व्हाट्सएप", "व्हाट्सअप"], "https://web.whatsapp.com", "WhatsApp"),
+    (["facebook", "फेसबुक"], "https://www.facebook.com", "Facebook"),
+    (["instagram", "इंस्टाग्राम"], "https://www.instagram.com", "Instagram"),
+    (["gmail", "जीमेल", "ईमेल"], "https://mail.google.com", "Gmail"),
+    (["map", "मैप", "नक्शा"], "https://maps.google.com", "Maps"),
+    (["google", "गूगल"], "https://www.google.com", "Google"),
+]
+
+JOKES = [
+    "Teacher ne pucha sabse tez cheez kya hai. Bachcha bola, chhutti ki ghanti.",
+    "Mareez ne doctor se kaha, mujhe bhoolne ki bimari hai. Doctor ne pucha, kab se? Mareez bola, kisse?",
+    "Papa ne kaha mobile rakh do. Beta bola, papa aap bhi to remote nahi chhodte.",
+]
+
+
+def google_search(query):
+    webbrowser.open("https://www.google.com/search?q=" + urllib.parse.quote(query))
+
+
+def play_on_youtube(query):
+    try:
+        import pywhatkit
+        pywhatkit.playonyt(query)
+    except Exception:
+        webbrowser.open("https://www.youtube.com/results?search_query=" + urllib.parse.quote(query))
+
+
+def handle(cmd):
+    if has(cmd, STOP):
+        speak("Theek hai boss, Jarvis band ho raha hai.")
+        return False
+
+    if has(cmd, SHUTDOWN) and has(cmd, CANCEL):
+        os.system("shutdown /a")
+        speak("Shutdown cancel kar diya.")
+        return True
+
+    if has(cmd, SHUTDOWN):
+        if confirm("Boss, kya sach me PC band karna hai?"):
+            os.system("shutdown /s /t 15")
+            speak("PC 15 second me band hoga. Rokne ke liye bolo shutdown roko.")
+        else:
+            speak("Theek hai, PC band nahi kar raha.")
+        return True
+
+    if has(cmd, CLOSE_ALL):
+        if confirm("Boss, saare khule app band kar du? Unsaved kaam jaa sakta hai."):
+            for app in APPS_TO_CLOSE:
+                subprocess.run(["taskkill", "/f", "/im", app],
+                               capture_output=True, text=True)
+            pyautogui.hotkey("win", "d")
+            speak("Saare apps band kar diye.")
+        else:
+            speak("Theek hai, kuch band nahi kiya.")
+        return True
+
+    if has(cmd, CLOSE_WINDOW):
+        pyautogui.hotkey("alt", "f4")
+        speak("Window band kar di.")
+        return True
+
+    if has(cmd, HOME):
+        pyautogui.hotkey("win", "d")
+        speak("Home screen par aa gaya.")
+        return True
+
+    if has(cmd, ["आवाज़ बढ़ा", "आवाज बढ़ा", "volume up", "वॉल्यूम बढ़ा"]):
+        pyautogui.press("volumeup", presses=5)
+        speak("Awaaz badha di.")
+        return True
+
+    if has(cmd, ["आवाज़ कम", "आवाज कम", "volume down", "वॉल्यूम कम"]):
+        pyautogui.press("volumedown", presses=5)
+        speak("Awaaz kam kar di.")
+        return True
+
+    if has(cmd, ["म्यूट", "mute"]):
+        pyautogui.press("volumemute")
+        speak("Mute kar diya.")
+        return True
+
+    if has(cmd, ["चलाओ", "बजाओ", "चला दो", "play "]):
+        query = re.sub(
+            r"youtube|यूट्यूब|खोलो|खोल|और|उसमें|इसमें|चलाओ|चला दो|बजाओ|play|on|पर|वीडियो",
+            " ", cmd)
+        query = re.sub(r"\s+", " ", query).strip() or cmd
+        speak("YouTube par chala raha hoon.")
+        play_on_youtube(query)
+        return True
+
+    if has(cmd, ["समय", "टाइम", "time"]):
+        speak("Abhi samay hai " + datetime.datetime.now().strftime("%I:%M %p"))
+        return True
+
+    if has(cmd, ["तारीख", "डेट", "date"]):
+        speak("Aaj ki tareekh hai " + datetime.datetime.now().strftime("%d %B %Y"))
+        return True
+
+    if has(cmd, ["जोक", "चुटकुला", "joke"]):
+        speak(random.choice(JOKES))
+        return True
+
+    if has(cmd, ["तुम्हारा नाम", "तुम कौन", "your name", "who are you"]):
+        speak("Mera naam Jarvis hai. Main aapka personal assistant hoon.")
+        return True
+
+    if has(cmd, ["हेलो", "हैलो", "hello", "hi jarvis"]):
+        speak("Hello boss, main taiyaar hoon.")
+        return True
+
+    for keys, command, name in APPS:
+        if has(cmd, keys):
+            subprocess.Popen(["cmd", "/c", "start", "", command])
+            speak(name + " khol raha hoon.")
+            return True
+
+    for keys, url, name in SITES:
+        if has(cmd, keys):
+            webbrowser.open(url)
+            speak(name + " khol raha hoon.")
+            return True
+
+    if cmd.startswith("search ") or cmd.startswith("सर्च "):
+        query = cmd.replace("search ", "").replace("सर्च ", "").strip()
+        speak("Google par khoj raha hoon.")
+        google_search(query)
+        return True
+
+    answer = ask_ai(cmd)
+    if answer:
+        speak(answer)
+    elif len(cmd.split()) >= 2:
+        speak("Google par khoj raha hoon.")
+        google_search(cmd)
+    else:
+        speak("Boss, main samajh nahi paya. Phir se boliye.")
+    return True
+
+
+def main():
+    pyautogui.FAILSAFE = True
+    speak("Jarvis online hai boss. Boliye.")
+    while True:
+        cmd = listen()
+        if not cmd:
+            continue
+        if not handle(cmd):
+            break
+
+
+if _name_ == "_main_":
+    main()
 <!DOCTYPE html>
 <html lang="hi">
 <head>
