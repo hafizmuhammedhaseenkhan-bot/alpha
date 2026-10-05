@@ -1,54 +1,190 @@
-"""
-اردو چیٹ بوٹ — ایک سادہ AI جو آپ سے اردو میں بات کرے گا
-"""
+🎤 Greetings & Small Talk
+Command	Example
+Greet JARVIS	Hello, Hi, Hey JARVIS, Good morning
+Ask how JARVIS is	How are you, How r u, Are you ok
+Say goodbye	Bye, Goodbye, See you, Alvida
+Ask who JARVIS is	Who are you, What are you, Introduce yourself
+👤 Profile Queries
+Command	Example
+About me	Tell me about me, Who am I, My profile
+My skills	What are my skills, List my skills
+My projects	What are my projects, My projects
+My education	My education, Where do I study
+My location	Where am I from, My city
+My social profiles	My LinkedIn, My social profiles
+About JARVIS	Tell me about JARVIS, JARVIS capabilities
+🌐 YouTube
+Command	Example
+Open YouTube	Open YouTube
+Search YouTube	Search YouTube for CarryMinati
+Play song	Play Shape of You on YouTube
+Stop music	Stop music, Pause YouTube
+Resume	Resume music, Play again
+Volume up/down	Increase volume, Decrease volume
+Seek forward/back	Seek forward, Seek backward
+Fullscreen	Toggle fullscreen
+Next/Previous	Next video, Previous video
+Speed	Increase playback speed, Decrease playback speed
+Subtitles	Toggle subtitles
+🔍 Google & Browser
+Command	Example
+Google search	Search Google for Python tutorials
+Open Google	Open Google
+Scroll	Scroll up, Scroll down, Scroll to top, Scroll to bottom
+Tabs	Open new tab, Close tab
+Navigation	Go back, Go forward, Refresh page
+History/Bookmarks	Open history, Open bookmarks
+Private window	Open private window
+Zoom	Zoom in, Zoom out
+Dev tools	Open dev tools
+🌍 Websites
+Command	Example
+Open any website	Open Facebook, Open GitHub, Open Netflix
+Open multiple	Open YouTube and Instagram
+Open YouTube + search	Open YouTube and search CarryMinati
+Supported sites: YouTube, Google, Facebook, Instagram, Twitter, LinkedIn, GitHub, Reddit, Netflix, Amazon, Spotify, WhatsApp, Telegram, Discord, Zoom, Slack, Gmail, ChatGPT, Canva, Udemy, Coursera, HackerRank, CodePen, W3Schools, Twitch, Pinterest, Medium, Quora, and 30+ more.
 
-import google.generativeai as genai
-import sys
+💻 Applications
+Command	Example
+Open app	Open Notepad, Open Chrome, Open VS Code
+Close app	Close, Quit, Exit
+Open Spotify	Open Spotify, Play on Spotify
+📁 Files & Folders
+Command	Example
+Create file/folder	Create file report.txt, Create folder Projects
+Open file	Open my documents, Open downloads
+Delete	Delete file test.txt
+Rename	Rename file old.txt
+Copy/Move	Copy file document.pdf
+🔊 System Volume
+Command	Example
+Set volume	Set volume to 50
+Volume up	Volume up, Increase volume, Volume badhao
+Volume down	Volume down, Decrease volume
+Mute/Unmute	Mute, Unmute, Sound off
+Max/Min volume	Volume max, Volume min, Full volume
+Media controls	Play pause, Next track, Previous track
+💡 System Control
+Command	Example
+Shutdown	Shutdown, Shut down, Power off
+Restart	Restart, Reboot
+Sleep	Sleep, Hibernate
+Screenshot	Take screenshot, Capture screen
+📊 Hardware Monitoring
+Command	Example
+Battery	Battery status, Check battery, Power level
+CPU	CPU usage, Processor usage
+RAM	RAM usage, Memory usage
+System status	System status
+Temperature	Temperature, Check temp
+🌤️ Weather
+Command	Example
+Current weather	Weather, What's the weather
+City weather	Weather in Mumbai, Weather in London
+⏰ Time & Date
+Command	Example
+Current time	What time is it, Current time, Time
+Current date	What's today, Date, What day is it
+📰 News
+Command	Example
+Top news	News, Headlines, Latest news
+Topic news	News about AI, Tech headlines
+🎵 Local Music
+Command	Example
+Play music	Play music, Play local music
+Stop music	Stop music, Pause music
+📝 Notes & Writing
+Command	Example
+Take note	Take note on Dada Bhagwan, Write short note on AI
+Take short note	Take short note on Dada Bhagwan
+Write essay	Write essay on climate change
+Write short note	Write short note on Dada Bhagwan
+Write article	Write article about machine learning
+Write story	Write a story about space
+🔢 Math & Statistics
+Command	Example
+Calculate	Calculate 25 times 4, What is 100 divided by 5
+Math	Solve 2x + 5 = 15
+Statistics	Mean of 10, 20, 30, Standard deviation of 5, 10, 15
+Square root	Square root of 144
+❓ Knowledge & Research
+Command	Example
+Who is	Who is Elon Musk, Who invented the telephone
+What is	What is quantum computing, What is AI
+Where is	Where is the Eiffel Tower
+When	When was India founded
+Why	Why is the sky blue
+How	How does a computer work
+Tell me about	Tell me about black holes
+Explain	Explain machine learning, Define blockchain
+Deep research	Deep research in AI, Research on data science
+🌐 Network & Internet
+Command	Example
+Speed test	Speed test, Internet speed, Check speed
+IP address	IP address, What is my IP, Find my IP
+Online status	Are you online, Internet status
+🖼️ Image Generation
+Command	Example
+Generate image	Generate image of a sunset, Create image of Iron Man
+Multiple images	Generate 3 images of mountains
+🌍 Translation
+Command	Example
+Translate	Translate hello to Hindi, Translate good morning to Gujarati
+🌍 Screenshort
+Command	Example
+Screenshort	Take Screenshort , screenshort
+😄 Entertainment
+Command	Example
+Tell a joke	Tell me a joke, Make me laugh ,Tell joke
+⌨️ Keyboard Control
+Command	Example
+Type text	Type Hello World
+Press key	Press Enter key, Press Escape key
+Hotkey	Ctrl C, Alt Tab, Ctrl Alt Delete
+Hotkey	Copy file/folde name, paste file/folder name, Cut file/folder name
+🔮 Jyotish (AI Astrology)
+Command	Example
+Future reading	Tell me my future, What is my future ,Tell me future about me
+Horoscope	What is my horoscope, Daily horoscope
+Kundali	Kundali banao, Jyotish reading
+Rashifal	Rashifal, Bhavishya batao
+Zodiac	What is my zodiac sign
+Predict	Predict my future career, Predict my future love,Predict my future
+🗣️ Voice & Language Settings
+Command	Example
+List voices	List voices, Available voices
+Change voice	Change voice to Zira, Female voice, Male voice
+Change language	Change language to Hindi, Speak in Gujarati
+Change speed	Speak faster, Speak slower, Speak normal
+Voice settings	Voice settings, Current voice
+🤖 Advanced AI (Deep Commands)
+Command	Example
+Deep thinking	Think deep about quantum computing
+Step by step	Explain AI step by step
+Code review	Review this code
+Debug	Explain this error
+Memory search	What did I say about Project X
+Network stats	Network stats, Show connections
+Health check	Time for break, Check posture
+Emergency	Emergency lockdown, Panic mode
+🌐 Multilingual Commands
+JARVIS understands Hindi and Gujarati:
 
-# ===== اپنا API Key یہاں لگائیں =====
-# مفت API Key حاصل کرنے کے لیے: https://aistudio.google.com/app/apikey
-API_KEY = "YOUR_GEMINI_API_KEY"
+Language	Example
+Hindi greeting	Namaste, Kaise ho
+Hindi time	Abhi kitne baje hain
+Hindi weather	Mausam kaisa hai
+Hindi volume	Awaaz badhao, Awaaz kam karo
+Gujarati greeting	Namaste, Kem cho
+Gujarati time	Ketla vagya
+📅 Google Calendar
+Command	Example
+View events	My calendar, Today's events
+Add event	Add meeting tomorrow at 3pm
+(Requires Google Calendar API setup)
 
-genai.configure(api_key=API_KEY)
-
-# ماڈل کو اردو میں بات کرنے کی ہدایت
-system_prompt = """
-تم ایک دوستانہ اور مددگار اردو چیٹ بوٹ ہو۔
-ہمیشہ اردو میں جواب دو۔
-سادہ اور واضح الفاظ استعمال کرو۔
-صرف اردو میں جواب دو، اردو اسکرپٹ میں۔
-"""
-
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
-    system_instruction=system_prompt,
-)
-
-chat = model.start_chat()
-
-print("=" * 50)
-print("🤖 اردو چیٹ بوٹ میں خوش آمدید!")
-print("👋 آپ جو چاہیں مجھ سے پوچھ سکتے ہیں۔")
-print("❌ 'خدا حافظ' یا 'الوداع' لکھ کر بات ختم کریں۔")
-print("=" * 50)
-
-while True:
-    try:
-        user_input = input("\n👤 آپ: ").strip()
-        
-        if not user_input:
-            continue
-        
-        if user_input.lower() in ["خدا حافظ", "الوداع", "bye", "ختم"]:
-            print("🤖 بوٹ: خدا حافظ! اللہ آپ کو خوش رکھے۔ 👋")
-            break
-        
-        response = chat.send_message(user_input)
-        print(f"🤖 بوٹ: {response.text}")
-        
-    except KeyboardInterrupt:
-        print("\n\n🤖 بوٹ: خدا حافظ!")
-        sys.exit(0)
-    except Exception as e:
-        print(f"⚠️ خرابی: {e}")
-        print("💡 براہِ کرم اپنا انٹرنیٹ کنکشن چیک کریں۔")
+❓ Help
+Command	Example
+Help	Help, What can you do
+J.A.R.V.I.S — Just A Rather Very Intelligent System
+Created by Dhvaj Patel | Version 5.0
