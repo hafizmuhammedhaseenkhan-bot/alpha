@@ -1,44 +1,54 @@
-import pyttsx3
-import os
-import webbrowser
-import datetime
+"""
+اردو چیٹ بوٹ — ایک سادہ AI جو آپ سے اردو میں بات کرے گا
+"""
 
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+import google.generativeai as genai
+import sys
 
-def speak(audio):
-    print(f"JARVIS: {audio}")
-    engine.say(audio)
-    engine.runAndWait()
+# ===== اپنا API Key یہاں لگائیں =====
+# مفت API Key حاصل کرنے کے لیے: https://aistudio.google.com/app/apikey
+API_KEY = "YOUR_GEMINI_API_KEY"
 
-if _name_ == "_main_":
-    speak("नमस्ते सर, मैं आपका जार्विस हूँ। बताइए मैं आपकी क्या मदद कर सकता हूँ?")
-    
-    while True:
-        query = input("\nआप यहाँ टाइप करें: ").lower()
+genai.configure(api_key=API_KEY)
 
-        if 'open youtube' in query or 'यूट्यूब खोलो' in query:
-            webbrowser.open("https://www.youtube.com")
-            speak("यूट्यूब खोला जा रहा है।")
+# ماڈل کو اردو میں بات کرنے کی ہدایت
+system_prompt = """
+تم ایک دوستانہ اور مددگار اردو چیٹ بوٹ ہو۔
+ہمیشہ اردو میں جواب دو۔
+سادہ اور واضح الفاظ استعمال کرو۔
+صرف اردو میں جواب دو، اردو اسکرپٹ میں۔
+"""
 
-        elif 'time' in query or 'समय' in query:
-            strTime = datetime.datetime.now().strftime("%H:%M:%S")
-            speak(f"सर, अभी समय {strTime} हुआ है।")
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    system_instruction=system_prompt,
+)
 
-        elif 'shutdown' in query or 'कंप्यूटर बंद करो' in query:
-            speak("कंप्यूटर बंद किया जा रहा है।")
-            os.system("shutdown /s /t 1")
+chat = model.start_chat()
 
-        elif 'hello' in query or 'हैलो' in query:
-            speak("हैलो सर! सब कुछ ठीक ठाक है?")
+print("=" * 50)
+print("🤖 اردو چیٹ بوٹ میں خوش آمدید!")
+print("👋 آپ جو چاہیں مجھ سے پوچھ سکتے ہیں۔")
+print("❌ 'خدا حافظ' یا 'الوداع' لکھ کر بات ختم کریں۔")
+print("=" * 50)
 
-        elif 'how are you' in query or 'कैसे हो' in query:
-            speak("मैं एकदम ठीक हूँ, आप बताइए आप कैसे हैं?")
-
-        elif 'exit' in query or 'बंद करो' in query or 'quit' in query:
-            speak("अलविदा सर, आपका दिन शुभ हो!")
+while True:
+    try:
+        user_input = input("\n👤 آپ: ").strip()
+        
+        if not user_input:
+            continue
+        
+        if user_input.lower() in ["خدا حافظ", "الوداع", "bye", "ختم"]:
+            print("🤖 بوٹ: خدا حافظ! اللہ آپ کو خوش رکھے۔ 👋")
             break
         
-        else:
-            speak("माफ़ कीजिए, मैं इस कमांड को नहीं समझ पाया। कृपया दूसरा कमांड दें।")
+        response = chat.send_message(user_input)
+        print(f"🤖 بوٹ: {response.text}")
+        
+    except KeyboardInterrupt:
+        print("\n\n🤖 بوٹ: خدا حافظ!")
+        sys.exit(0)
+    except Exception as e:
+        print(f"⚠️ خرابی: {e}")
+        print("💡 براہِ کرم اپنا انٹرنیٹ کنکشن چیک کریں۔")
