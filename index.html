@@ -33,12 +33,7 @@ h1 { font-size: 42px; color: #00d9ff; letter-spacing: 5px; text-shadow: 0 0 20px
   100% { transform: scale(1); box-shadow: 0 0 20px #00d9ff; }
 }
 #status { min-height: 50px; color: #d5e9f5; font-size: 18px; margin: 20px 0 10px; }
-#heard { min-height: 30px; color: #55dfff; font-size: 15px; margin-bottom: 10px; }
-#link { min-height: 30px; margin-bottom: 15px; }
-#link a {
-  display: inline-block; padding: 10px 22px; border-radius: 30px;
-  background: #00d9ff; color: #02131f; font-weight: bold; text-decoration: none;
-}
+#heard { min-height: 30px; color: #55dfff; font-size: 15px; margin-bottom: 20px; }
 button {
   border: none; border-radius: 50px; padding: 14px 35px;
   background: linear-gradient(135deg, #00d9ff, #0077ff); color: white;
@@ -58,7 +53,6 @@ button:hover { transform: scale(1.04); }
   <div id="orb" class="orb">🤖</div>
   <div id="status">Start Jarvis दबाइए।</div>
   <div id="heard"></div>
-  <div id="link"></div>
   <button id="startBtn" onclick="startJarvis()">START JARVIS</button>
 </div>
 
@@ -73,7 +67,6 @@ let voices = [];
 
 const statusText = document.getElementById("status");
 const heardText = document.getElementById("heard");
-const linkBox = document.getElementById("link");
 const startButton = document.getElementById("startBtn");
 const orb = document.getElementById("orb");
 
@@ -154,7 +147,6 @@ function startJarvis() {
   recognition.onresult = function(event) {
     const transcript = event.results[0][0].transcript.toLowerCase().trim();
     heardText.innerText = "आपने कहा: " + transcript;
-    linkBox.innerHTML = "";
     orb.classList.remove("listening");
     processCommand(transcript);
   };
@@ -182,75 +174,32 @@ function startJarvis() {
   speak("Jarvis online है, बोलिए boss, मैं सुन रहा हूँ।");
 }
 
-function showLink(url) {
-  linkBox.innerHTML = '<a href="' + url + '" target="_blank">यहाँ क्लिक करके खोलें</a>';
-}
-
-function openLater(url) {
-  setTimeout(function() {
-    const w = window.open(url, "_blank");
-    if (!w) {
-      showLink(url);
-      setStatus("Pop-up रुक गया। नीचे बटन दबाइए, या address bar में Always allow करें।", "error");
-    }
-  }, 800);
-}
-
 const COMMANDS = [
   { keys: ["hello", "हेलो", "हैलो", "hi jarvis", "हाय jarvis"],
     reply: "Hello boss, Jarvis आपकी मदद के लिए तैयार है।" },
   { keys: ["jarvis open", "जार्विस खोलो", "जार्विस ऑनलाइन"],
     reply: "Yes boss, Jarvis online है।" },
-  { keys: ["तुम्हारा नाम", "your name", "who are you", "तुम कौन हो"],
+  { keys: ["तुम्हारा नाम", "your name", "who are you"],
     reply: "मेरा नाम Jarvis है। मैं आपका personal AI voice assistant हूँ।" },
-  { keys: ["किसने बनाया", "who made you", "who created you"],
-    reply: "मुझे मेरे boss ने बनाया है।" },
   { keys: ["कैसे हो", "कैसा है", "how are you"],
     reply: "मैं बिल्कुल ठीक हूँ boss। और आपकी मदद के लिए तैयार हूँ।" },
   { keys: ["thank you", "धन्यवाद", "शुक्रिया"],
     reply: "You're welcome boss." },
-  { keys: ["whatsapp", "व्हाट्सएप", "व्हाट्सअप"],
-    reply: "WhatsApp खोला जा रहा है।", url: "https://web.whatsapp.com" },
-  { keys: ["facebook", "फेसबुक"],
-    reply: "Facebook खोला जा रहा है।", url: "https://www.facebook.com" },
-  { keys: ["instagram", "इंस्टाग्राम"],
-    reply: "Instagram खोला जा रहा है।", url: "https://www.instagram.com" },
-  { keys: ["gmail", "जीमेल", "ईमेल", "email"],
-    reply: "Gmail खोला जा रहा है।", url: "https://mail.google.com" },
-  { keys: ["map", "मैप", "नक्शा"],
-    reply: "Google Maps खोला जा रहा है।", url: "https://maps.google.com" },
-  { keys: ["मौसम", "weather"],
-    reply: "मौसम की जानकारी खोल रहा हूँ।", url: "https://www.google.com/search?q=weather" },
   { keys: ["youtube", "यूट्यूब"],
     reply: "YouTube खोला जा रहा है boss।", url: "https://www.youtube.com" },
   { keys: ["google", "गूगल"],
-    reply: "Google खोला जा रहा है boss।", url: "https://www.google.com" }
+    reply: "Google खोला जा रहा है boss।", url: "https://www.google.com" },
+  { keys: ["facebook", "फेसबुक"],
+    reply: "Facebook खोला जा रहा है।", url: "https://www.facebook.com" },
+  { keys: ["instagram", "इंस्टाग्राम"],
+    reply: "Instagram खोला जा रहा है।", url: "https://www.instagram.com" }
 ];
 
-const JOKES = [
-  "टीचर ने पूछा, सबसे तेज़ चीज़ क्या है? बच्चा बोला, छुट्टी की घंटी।",
-  "मरीज़ ने डॉक्टर से कहा, मुझे भूलने की बीमारी है। डॉक्टर ने पूछा, कब से? मरीज़ बोला, किससे?",
-  "पापा ने कहा, बेटा मोबाइल रख दो। बेटा बोला, पापा आप भी तो रिमोट नहीं छोड़ते।"
-];
-
-function has(command, keys) {
-  return keys.some(k => command.includes(k));
+function openLater(url) {
+  setTimeout(function() { window.open(url, "_blank"); }, 800);
 }
 
 function processCommand(command) {
-
-  if (has(command, ["बंद करो", "बंद हो जाओ", "stop jarvis", "exit"])) {
-    jarvisRunning = false;
-    speak("ठीक है boss, Jarvis बंद हो रहा है।");
-    setStatus("Jarvis बंद है। फिर से START दबाइए।");
-    startButton.style.display = "inline-block";
-    return;
-  }
-
-  if (has(command, ["जोक", "चुटकुला", "joke"])) {
-    speak(JOKES[Math.floor(Math.random() * JOKES.length)]);
-    return;
-  }
 
   if (command.startsWith("search ") || command.startsWith("सर्च ")) {
     const query = command.replace("search ", "").replace("सर्च ", "").trim();
@@ -261,42 +210,27 @@ function processCommand(command) {
     }
   }
 
-  if (has(command, ["चलाओ", "बजाओ", "चला दो", "play "])) {
-    let q = command
-      .replace(/youtube|यूट्यूब|खोलो|खोल|और|उसमें|इसमें|चलाओ|चला दो|बजाओ|play|on|पर|वीडियो/g, " ")
-      .replace(/\s+/g, " ").trim();
-    if (!q) q = command;
-    speak(q + " को YouTube पर खोज रहा हूँ।");
-    openLater("https://www.youtube.com/results?search_query=" + encodeURIComponent(q));
-    return;
-  }
-
   for (const c of COMMANDS) {
-    if (has(command, c.keys)) {
+    if (c.keys.some(k => command.includes(k))) {
       speak(c.reply);
       if (c.url) openLater(c.url);
       return;
     }
   }
 
-  if (has(command, ["समय", "टाइम", "time"])) {
+  if (command.includes("समय") || command.includes("टाइम") || command.includes("time")) {
     const t = new Date().toLocaleTimeString("hi-IN", { hour: "2-digit", minute: "2-digit" });
     speak("अभी समय है " + t);
     return;
   }
 
-  if (has(command, ["आज की तारीख", "आज की डेट", "date"])) {
+  if (command.includes("आज की तारीख") || command.includes("आज की डेट") || command.includes("date")) {
     const d = new Date().toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" });
     speak("आज की तारीख है " + d);
     return;
   }
 
-  if (command.split(" ").length >= 2) {
-    speak(command + " को Google पर खोज रहा हूँ।");
-    openLater("https://www.google.com/search?q=" + encodeURIComponent(command));
-  } else {
-    speak("Boss, मैं समझ नहीं पाया। फिर से बोलिए।");
-  }
+  speak("Boss, मैंने आपकी बात सुनी, लेकिन यह command अभी मेरे system में नहीं है।");
 }
 </script>
 
